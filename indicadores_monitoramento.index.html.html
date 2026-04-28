@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoramento de Indicadores · Goiás 2025–2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f5f7;--panel:#fff;--sidebar:#009B3A;
+  --accent:#009B3A;--yellow:#FEDF00;--blue:#0d6ebd;
+  --red:#d62728;--orange:#e07b00;--green:#1e7e34;
+  --text:#252525;--muted:#6c757d;--border:#e0e3e8;
+  --shadow:0 1px 4px rgba(0,0,0,.08);--r:6px;
+  /* Status Monitoramento */
+  --mon-nao:#9e9e9e;--mon-nao-bg:#f5f5f5;--mon-nao-border:#bdbdbd;
+  --mon-atualizado:#1e7e34;--mon-atualizado-bg:#e8f5e9;--mon-atualizado-border:#a5d6a7;
+  --mon-atraso:#d62728;--mon-atraso-bg:#ffebee;--mon-atraso-border:#ef9a9a;
+  /* Status Evolução */
+  --ev-positiva:#1e7e34;--ev-positiva-bg:#e8f5e9;
+  --ev-estavel:#0d6ebd;--ev-estavel-bg:#e3f2fd;
+  --ev-negativa:#d62728;--ev-negativa-bg:#ffebee;
+}
+body{font-family:'Barlow','Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;display:flex;height:100vh;overflow:hidden}
+body.splash-on>nav,body.splash-on>.main{visibility:hidden}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:9999;background:#009B3A;display:grid;grid-template-columns:420px 1fr;font-family:'Barlow Condensed','Segoe UI',sans-serif;overflow:hidden}
+#splash .geo{position:absolute;inset:0;pointer-events:none;z-index:0}
+#splash .geo::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.1) 0,transparent 65%);top:-200px;right:-100px;animation:blob 9s ease-in-out infinite alternate}
+#splash .geo::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.1) 0,transparent 65%);bottom:-120px;left:-80px;animation:blob 11s ease-in-out infinite alternate-reverse}
+@keyframes blob{from{transform:scale(1)}to{transform:scale(1.12) translate(20px,-15px)}}
+.gl{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.05) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.sp-left{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:48px 44px;border-right:1px solid rgba(255,255,255,.12);background:linear-gradient(160deg,rgba(0,0,0,.18) 0,rgba(0,0,0,.06) 100%)}
+.sp-badge{display:flex;align-items:center;gap:12px;margin-bottom:36px;opacity:0;animation:up .6s .2s ease forwards}
+.sp-flag{width:96px;height:62px;border-radius:3px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.5);flex-shrink:0}
+.sp-gov .l1{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);font-family:'Barlow',sans-serif}
+.sp-gov .l2{font-size:15px;font-weight:700;color:#FEDF00}
+.sp-h1{font-size:50px;font-weight:800;line-height:.95;color:#fff;letter-spacing:-1px;text-transform:uppercase;margin-bottom:8px;opacity:0;animation:up .7s .3s ease forwards}
+.sp-h1 .acc{color:#FEDF00}
+.sp-sub{font-size:15px;color:rgba(255,255,255,.75);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:24px;opacity:0;animation:up .6s .45s ease forwards}
+.sp-line{width:56px;height:3px;background:linear-gradient(90deg,#FEDF00,rgba(255,255,255,.4));border-radius:2px;margin-bottom:20px;opacity:0;animation:up .5s .55s ease forwards}
+.sp-desc{font-size:13.5px;line-height:1.8;color:rgba(255,255,255,.78);font-family:'Barlow',sans-serif;font-weight:300;margin-bottom:32px;opacity:0;animation:up .6s .65s ease forwards}
+.sp-desc strong{color:#FEDF00;font-weight:700}
+.sp-btn{display:inline-flex;align-items:center;gap:14px;padding:14px 32px;background:#FEDF00;border:none;border-radius:7px;color:#004d1a;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:transform .2s,box-shadow .2s;align-self:flex-start;opacity:0;animation:up .6s .85s ease forwards;box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.sp-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.sp-arrow{font-size:18px;transition:transform .2s}
+.sp-btn:hover .sp-arrow{transform:translateX(4px)}
+.sp-meta{margin-top:14px;display:flex;align-items:center;gap:7px;opacity:0;animation:up .5s 1s ease forwards}
+.sp-meta .dot{width:5px;height:5px;border-radius:50%;background:#FEDF00;flex-shrink:0}
+.sp-meta span{font-size:12px;color:rgba(255,255,255,.55);font-family:'Barlow',sans-serif}
+
+/* ── SPLASH RIGHT ── */
+.sp-right{position:relative;z-index:2;display:grid;grid-template-columns:1fr 200px;gap:16px;padding:24px 28px 24px 32px;align-items:stretch}
+.sp-right-content{display:flex;flex-direction:column;gap:12px;align-items:stretch;justify-content:center}
+
+/* ── BIG NUMBER CARDS ── */
+.sp-bigcards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;opacity:0;animation:up .6s .4s ease forwards;width:100%}
+.sp-bigcard{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:18px 10px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:default}
+.sp-bigcard:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.sp-bigcard::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 14px 14px}
+.sp-bigcard.bc-total::after{background:#FEDF00}
+.sp-bigcard.bc-orgaos::after{background:rgba(255,255,255,.35)}
+.sp-bigcard .bc-icon{font-size:16px;margin-bottom:6px;opacity:.8}
+.sp-bigcard .bc-num{font-size:52px;font-weight:900;line-height:1;font-family:'Barlow Condensed',sans-serif;letter-spacing:-2px}
+.sp-bigcard.bc-total .bc-num{color:#FEDF00}
+.sp-bigcard.bc-orgaos .bc-num{color:rgba(255,255,255,.9)}
+.sp-bigcard .bc-lbl{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.5);font-family:'Barlow',sans-serif;margin-top:5px}
+
+/* ── STATUS CARDS ── */
+.sp-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-radius:12px 12px 0 0}
+.sp-status-card{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px 10px;text-align:center}
+.sp-status-card .sc-icon{font-size:18px;margin-bottom:4px}
+.sp-status-card .sc-num{font-size:36px;font-weight:900;line-height:1;font-family:'Barlow Condensed',sans-serif;letter-spacing:-1px}
+.sp-status-card.sc-nao .sc-num{color:#ffffff}
+.sp-status-card.sc-atualizado .sc-num{color:#a3e635}
+.sp-status-card.sc-atraso .sc-num{color:#f87171}
+.sp-status-card .sc-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.45);font-family:'Barlow',sans-serif;margin-top:4px;line-height:1.3}
+
+
+/* ── EVOLUÇÃO CARDS ── */
+.sp-ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sp-ev-card{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 10px;text-align:center}
+.sp-ev-card .ec-icon{font-size:18px;margin-bottom:4px}
+.sp-ev-card .ec-num{font-size:36px;font-weight:900;line-height:1;font-family:'Barlow Condensed',sans-serif;letter-spacing:-1px}
+.sp-ev-card.ec-positiva .ec-num{color:#a3e635}
+.sp-ev-card.ec-estavel .ec-num{color:#ffffff}
+.sp-ev-card.ec-negativa .ec-num{color:#f87171}
+.sp-ev-card .ec-lbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);font-family:'Barlow',sans-serif;margin-top:4px;line-height:1.3}
+
+/* ── SECTION LABEL ── */
+.sp-section-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);font-family:'Barlow',sans-serif;margin-bottom:4px;opacity:0;animation:up .5s .48s ease forwards}
+
+/* ── MON + EV BLOCK (conexão visual) ── */
+.sp-mon-ev-block{display:flex;flex-direction:column;gap:0;opacity:0;animation:up .6s .52s ease forwards}
+.sp-atualizado-destaque{position:relative;border-color:rgba(163,230,53,.35) !important;background:rgba(0,80,0,.32) !important}
+.sc-connector-arrow{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-size:10px;color:#a3e635;line-height:1;z-index:2;text-shadow:0 0 6px rgba(163,230,53,.6)}
+.sp-ev-context-block{background:rgba(0,50,0,.35);border:1px solid rgba(163,230,53,.25);border-radius:0 0 12px 12px;border-top:none;padding:10px 8px 10px;position:relative}
+.sp-status-grid{border-radius:12px 12px 0 0}
+.sp-ev-context-label{display:flex;align-items:center;gap:6px;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(163,230,53,.75);font-family:'Barlow',sans-serif;margin-bottom:8px;padding:0 2px}
+.sp-ev-context-label strong{color:#a3e635;font-weight:700}
+.sp-ev-badge-dot{width:6px;height:6px;border-radius:50%;background:#a3e635;flex-shrink:0;box-shadow:0 0 5px rgba(163,230,53,.7)}
+
+/* ── HOME CHARTS ── */
+.sp-charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;opacity:0;animation:up .6s .72s ease forwards}
+.sp-chart-box{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px}
+.sp-chart-box .sc-title{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.5);font-family:'Barlow',sans-serif;margin-bottom:8px;text-align:center}
+.sp-chart-box canvas{max-height:200px}
+.sp-chart-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px}
+.sp-chart-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:rgba(255,255,255,.6);font-family:'Barlow',sans-serif}
+.sp-chart-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+
+
+/* ── QUICK ACCESS BUTTONS ── */
+.sp-quicklinks{display:flex;flex-direction:column;gap:8px;opacity:0;animation:up .6s .7s ease forwards;justify-content:space-between}
+.sp-quicklinks-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);font-family:'Barlow',sans-serif;margin-bottom:4px}
+.sp-ql-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.15);border-radius:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:#fff;flex:1}
+.sp-ql-btn:hover{background:rgba(0,0,0,.4);border-color:rgba(254,223,0,.5);transform:translateX(3px)}
+.sp-ql-btn .ql-icon{font-size:18px;flex-shrink:0}
+.sp-ql-btn .ql-title{font-size:11.5px;font-weight:700;color:#fff;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;line-height:1.2}
+.sp-ql-btn .ql-desc{font-size:9.5px;color:rgba(255,255,255,.45);font-family:'Barlow',sans-serif;margin-top:2px}
+.sp-ql-btn .ql-arrow{margin-left:auto;color:rgba(255,255,255,.3);font-size:14px;transition:transform .2s}
+.sp-ql-btn:hover .ql-arrow{color:#FEDF00;transform:translateX(3px)}
+.sp-ql-btn.ql-visao{background:rgba(0,77,26,.55);border-color:rgba(0,120,40,.5)}
+
+#splash.exiting{animation:splashExit .7s ease forwards}
+@keyframes splashExit{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.03);pointer-events:none}}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SIDEBAR ── */
+nav{width:48px;min-width:48px;background:var(--sidebar);display:flex;flex-direction:column;overflow:hidden;transition:width .25s ease;position:relative;z-index:100;flex-shrink:0}
+nav:hover{width:224px;overflow-y:auto;box-shadow:4px 0 16px rgba(0,0,0,.25)}
+.nav-logo{padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap;overflow:hidden}
+.nav-logo .gov{color:rgba(255,255,255,.7);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.nav-logo .title{color:#fff;font-weight:700;font-size:13px;line-height:1.3;margin-top:3px}
+.nav-logo .sub{color:#FEDF00;font-size:10px;margin-top:2px;font-weight:600;letter-spacing:.5px}
+.nav-section{padding:10px 0 3px;color:rgba(255,255,255,.55);font-size:9.5px;letter-spacing:1px;text-transform:uppercase;padding-left:15px;white-space:nowrap;overflow:hidden}
+.nav-item{padding:9px 14px;cursor:pointer;color:rgba(255,255,255,.85);font-size:12.5px;transition:all .15s;display:flex;align-items:center;gap:9px;white-space:nowrap;overflow:hidden}
+.nav-item:hover{background:rgba(0,0,0,.12);color:#fff}
+.nav-item.active{background:rgba(0,0,0,.2);color:#fff;border-left:3px solid #FEDF00}
+.nav-item .ico{width:20px;text-align:center;font-size:14px;flex-shrink:0}
+.nav-home{margin:10px 12px 4px;padding:8px 10px;background:rgba(254,223,0,.2);border:1px solid rgba(254,223,0,.5);border-radius:5px;color:#FEDF00;font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.nav-home:hover{background:rgba(254,223,0,.35)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px}
+.tb-title{font-size:14px;font-weight:700;color:var(--text)}
+.tb-sub{color:var(--muted);font-size:11px;margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge-date{background:#eef2ff;color:#3b5bdb;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600}
+.search-box{padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;outline:none;color:var(--text);transition:border .15s;width:200px;font-family:'Barlow',sans-serif}
+.search-box:focus{border-color:#009B3A}
+.content{flex:1;overflow-y:auto;padding:16px 20px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c8cdd6;border-radius:3px}
+.page{display:none}
+.page.active{display:block}
+#page-detalhe.active{display:flex;flex-direction:column}
+.content:has(#page-detalhe.active){overflow:hidden;display:flex;flex-direction:column}
+.content:has(#page-detalhe.active) #page-detalhe{flex:1;min-height:0}
+
+/* ── PANELS ── */
+.panel{background:var(--panel);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);margin-bottom:12px}
+.panel-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.panel-title span{font-size:10.5px;font-weight:400;color:var(--muted)}
+.chart-row{display:grid;gap:12px;margin-bottom:12px}
+.chart-row.c2{grid-template-columns:1fr 1fr}
+.chart-row.c3{grid-template-columns:1fr 1fr 1fr}
+.chart-row.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+
+/* ── KPIs ── */
+.kpi-row{display:grid;gap:12px;margin-bottom:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.kpi{background:var(--panel);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.kpi.green{border-top:3px solid var(--green)}
+.kpi.red{border-top:3px solid var(--red)}
+.kpi.grey{border-top:3px solid #9e9e9e}
+.kpi.blue{border-top:3px solid var(--blue)}
+.kpi.yellow{border-top:3px solid #d4a900}
+.kpi.no-border{border-top:none !important}
+.kpi.no-line{border-top-color:transparent !important}
+.kpi-icon{font-size:20px;margin-bottom:5px}
+.kpi-lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kpi-val{font-size:24px;font-weight:800;color:var(--text);line-height:1.1;font-family:'Barlow Condensed',sans-serif}
+.kpi-val.green{color:var(--green)}
+.kpi-val.red{color:var(--red)}
+.kpi-val.grey{color:#757575}
+.kpi-val.blue{color:var(--blue)}
+.kpi-sub{font-size:10.5px;color:var(--muted);margin-top:3px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{background:#f8f9fb;padding:7px 10px;text-align:left;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:1;white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #f0f2f5;color:var(--text);vertical-align:middle}
+tr:hover td{background:#fafbfd;cursor:pointer}
+td.right,th.right{text-align:right}
+
+/* ── TAGS ── */
+.tag{display:inline-block;font-size:9.5px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
+/* Status Monitoramento */
+.tag.nao-iniciado{background:var(--mon-nao-bg);color:var(--mon-nao)}
+.tag.atualizado{background:var(--mon-atualizado-bg);color:var(--mon-atualizado)}
+.tag.em-atraso{background:var(--mon-atraso-bg);color:var(--mon-atraso)}
+/* Status Evolução */
+.tag.ev-positiva{background:var(--ev-positiva-bg);color:var(--ev-positiva)}
+.tag.ev-estavel{background:var(--ev-estavel-bg);color:var(--ev-estavel)}
+.tag.ev-negativa{background:var(--ev-negativa-bg);color:var(--ev-negativa)}
+/* Periodicidade */
+.tag.sem{background:#f0f0f0;color:#666}
+.tag.ativo{background:#e3f2fd;color:#0d6ebd}
+.tag.tri{background:#f3e8f9;color:#7b2d8b}
+.tag.sem-per{background:#fff3e0;color:#e07b00}
+.tag.men{background:#e8f5e9;color:#1e7e34}
+.tag.bim{background:#fce4ec;color:#c2185b}
+.tag.qua{background:#e0f2f1;color:#00695c}
+
+/* ── LEGENDA DUPLA ── */
+.dupla-legenda{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;padding:12px 16px;background:var(--panel);border-radius:var(--r);border:1px solid var(--border)}
+.dl-group{display:flex;flex-direction:column;gap:6px}
+.dl-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.dl-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dl-sep{width:1px;background:var(--border)}
+
+/* ── DETALHE ── */
+#page-detalhe{overflow:hidden}
+.det-grid{display:grid;grid-template-columns:340px 1fr;gap:12px;height:100%}
+.det-left{overflow-y:auto;padding-right:4px}
+.det-right{overflow-y:auto}
+.det-header{background:linear-gradient(135deg,#009B3A,#007a2e);border-radius:var(--r);padding:16px;margin-bottom:12px;color:#fff}
+.det-id{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:4px;font-family:'Barlow',sans-serif}
+.det-nome{font-size:15px;font-weight:700;line-height:1.3;margin-bottom:8px}
+.det-org{font-size:11px;color:rgba(255,255,255,.75);margin-bottom:12px}
+.det-tags{display:flex;flex-wrap:wrap;gap:6px}
+.det-tag{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:4px;padding:3px 10px;font-size:11px;color:#fff}
+.det-info-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.det-info{background:var(--panel);border-radius:var(--r);padding:10px 14px;box-shadow:var(--shadow);flex:1;min-width:140px}
+.det-info label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
+.det-info .val{font-size:14px;font-weight:700;color:var(--text)}
+.det-info .sub{font-size:11px;color:var(--muted);margin-top:2px}
+.det-formula{background:#f8f9fb;border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;font-size:11.5px;color:var(--text)}
+.det-formula label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.det-formula code{font-family:'Courier New',monospace;color:#7b2d8b;background:rgba(123,45,139,.07);padding:2px 6px;border-radius:3px}
+.mon-row{display:grid;grid-template-columns:90px 100px 120px 120px 1fr 60px;gap:8px;align-items:center;padding:9px 12px;border-bottom:1px solid #f0f2f5;font-size:12px}
+.mon-row:hover{background:#fafbfd}
+.mon-row.header{background:#f8f9fb;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);border-radius:var(--r) var(--r) 0 0}
+.mon-periodo{font-weight:600;color:var(--text)}
+.mon-val{font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:14px}
+.mon-obs{font-size:11px;color:var(--muted);line-height:1.3}
+.mon-edit{padding:3px 8px;border:1.5px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:var(--muted);transition:all .15s}
+.mon-edit:hover{border-color:#009B3A;color:#009B3A}
+.btn-back{padding:7px 16px;border:1.5px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s;display:inline-flex;align-items:center;gap:6px;margin-bottom:12px;font-family:'Barlow',sans-serif}
+.btn-back:hover{border-color:#009B3A;color:#009B3A}
+
+/* ── BAR LIST ── */
+.bar-list{display:flex;flex-direction:column;gap:8px}
+.bl-row{display:flex;align-items:center;gap:8px}
+.bl-lbl{font-size:11px;color:var(--text);width:180px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-track{flex:1;height:6px;background:#eef0f4;border-radius:3px;overflow:hidden}
+.bl-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.bl-val{font-size:11px;font-weight:600;color:var(--muted);width:28px;text-align:right}
+
+/* ── LEGEND ── */
+.legend{display:flex;flex-direction:column;gap:3px;margin-top:0}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10.5px}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-lbl{flex:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.leg-val{font-weight:700;color:var(--text);margin-left:2px}
+.leg-pct{color:var(--muted);min-width:28px;text-align:right}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:8px;width:820px;max-width:98vw;box-shadow:0 10px 48px rgba(0,0,0,.22);margin:auto}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 22px 14px;border-bottom:1px solid var(--border)}
+.modal-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.modal-ind-nome{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;max-width:560px}
+.modal-section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:12px 22px 8px;border-bottom:1px solid #f0f2f5}
+.modal-readonly-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding:8px 22px 4px}
+.mrf{padding:7px 10px 7px 0}
+.mrf-wide{grid-column:1/-1}
+.mrf-lbl{display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:500}
+.mrf-val{background:#f4f5f7;border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:12.5px;color:var(--text);font-weight:500;min-height:32px}
+.modal-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 22px 0}
+.mf-group{display:flex;flex-direction:column;gap:4px;padding:0 22px}
+.modal-form-row .mf-group{padding:0}
+.mf-lbl{font-size:11px;color:var(--muted);font-weight:500}
+.mf-lbl .req{color:#d62728;font-weight:700}
+.mf-input{padding:7px 10px;border:1.5px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;transition:border .15s;background:#fff}
+.mf-input:focus{border-color:#009B3A;box-shadow:0 0 0 3px rgba(0,155,58,.08)}
+.mf-textarea{resize:vertical;min-height:90px}
+.char-count{font-size:10.5px;color:var(--muted);text-align:right;margin-top:2px;padding:0 22px}
+.btn-add-mon{padding:8px 20px;border:none;border-radius:5px;background:#009B3A;color:#fff;cursor:pointer;font-size:13px;font-weight:700;font-family:'Barlow',sans-serif;transition:background .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-add-mon:hover{background:#007a2e}
+.btn-cancel{padding:8px 18px;border:1.5px solid #e07b00;border-radius:5px;background:#fff;cursor:pointer;font-size:13px;color:#e07b00;font-family:'Barlow',sans-serif;font-weight:600;transition:all .15s}
+.btn-cancel:hover{background:#fff8f0}
+.btn-save{padding:8px 18px;border:none;border-radius:5px;background:#0d6ebd;color:#fff;cursor:pointer;font-size:13px;font-weight:700;font-family:'Barlow',sans-serif;transition:background .15s}
+.btn-save:hover{background:#0a5a9e}
+.mon-hist-table{margin:14px 22px 18px;border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.mon-hist-table table{width:100%;border-collapse:collapse;font-size:11.5px}
+.mon-hist-table th{background:#f8f9fb;padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border)}
+.mon-hist-table td{padding:8px 10px;border-bottom:1px solid #f0f2f5;vertical-align:top}
+.mon-hist-table tr:last-child td{border-bottom:none}
+.mon-hist-table .empty{padding:14px 12px;color:var(--muted);font-size:12px;font-style:italic}
+
+/* ── PAGINATION ── */
+.pag{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--muted)}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s}
+.pag-btn:hover,.pag-btn.active{border-color:#009B3A;color:#009B3A}
+.pag-btn:disabled{opacity:.4;cursor:default}
+
+/* ── EXPORT ── */
+.export-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-export{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:5px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Barlow',sans-serif}
+.btn-export:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.btn-export.xlsx{border-color:#1a7a3c;color:#1a7a3c}
+.btn-export.xlsx:hover{background:#e8f5e9}
+.btn-export.csv{border-color:#0d6ebd;color:#0d6ebd}
+.btn-export.csv:hover{background:#e3f2fd}
+.btn-export.pdf{border-color:#d62728;color:#d62728}
+.btn-export.pdf:hover{background:#fff5f5}
+.export-sep{width:1px;height:22px;background:var(--border)}
+
+/* ── ÓRGÃO DRAWER ── */
+#orgao-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:none;align-items:center;justify-content:center;padding:24px 16px}
+#orgao-drawer-overlay.open{display:flex}
+#orgao-drawer{width:860px;max-width:96vw;max-height:90vh;background:#fff;border-radius:10px;display:flex;flex-direction:column;box-shadow:0 16px 56px rgba(0,0,0,.28);transform:scale(.96);opacity:0;transition:transform .25s cubic-bezier(.22,1,.36,1),opacity .25s ease}
+#orgao-drawer-overlay.open #orgao-drawer{transform:scale(1);opacity:1}
+.od-header{background:linear-gradient(135deg,#009B3A,#007a2e);padding:20px 22px 16px;color:#fff;flex-shrink:0}
+.od-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.od-title{font-size:16px;font-weight:700;line-height:1.3;flex:1}
+.od-close{background:rgba(255,255,255,.15);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:18px;flex-shrink:0;transition:background .15s}
+.od-close:hover{background:rgba(255,255,255,.3)}
+.od-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.od-kpi{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 10px;text-align:center}
+.od-kpi .k-num{font-size:22px;font-weight:900;font-family:'Barlow Condensed',sans-serif;line-height:1}
+.od-kpi .k-lbl{font-size:8.5px;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:3px;font-family:'Barlow',sans-serif}
+.od-kpi.k-tot .k-num{color:#FEDF00}
+.od-kpi.k-nao .k-num{color:#bdbdbd}
+.od-kpi.k-atual .k-num{color:#5cdd7a}
+.od-kpi.k-atraso .k-num{color:#ff7b7b}
+.od-kpi.k-evpos .k-num{color:#5cdd7a}
+.od-body{overflow-y:auto;flex:1}
+.od-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.od-table th{background:#f8f9fb;padding:8px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;border-bottom:2px solid var(--border);position:sticky;top:0}
+.od-table td{padding:8px 12px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+.od-table tr:hover td{background:#fafbfd;cursor:pointer}
+.od-table .ind-cod{font-weight:700;color:#009B3A;white-space:nowrap}
+.od-table .ind-val{font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:14px;text-align:right;white-space:nowrap}
+.od-empty{padding:40px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ── GAUGE ── */
+.gauge-wrap{position:relative;display:flex;flex-direction:column;align-items:center;padding:4px 0 0}
+.gauge-svg{overflow:visible;width:100%;max-width:300px}
+.gauge-verdict{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid}
+
+/* ── STATUS MATRIX ── */
+.matrix-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.matrix-cell{border-radius:8px;padding:12px 14px;border:1.5px solid}
+.matrix-cell.nao{background:var(--mon-nao-bg);border-color:var(--mon-nao-border)}
+.matrix-cell.atualizado{background:var(--mon-atualizado-bg);border-color:var(--mon-atualizado-border)}
+.matrix-cell.em-atraso{background:var(--mon-atraso-bg);border-color:var(--mon-atraso-border)}
+.matrix-cell .mc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.matrix-cell.nao .mc-title{color:var(--mon-nao)}
+.matrix-cell.atualizado .mc-title{color:var(--mon-atualizado)}
+.matrix-cell.em-atraso .mc-title{color:var(--mon-atraso)}
+.matrix-cell .mc-num{font-size:28px;font-weight:900;font-family:'Barlow Condensed',sans-serif;line-height:1}
+.matrix-cell.nao .mc-num{color:var(--mon-nao)}
+.matrix-cell.atualizado .mc-num{color:var(--mon-atualizado)}
+.matrix-cell.em-atraso .mc-num{color:var(--mon-atraso)}
+.matrix-cell .mc-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+
+/* Print */
+@media print{
+  body{height:auto!important;overflow:visible!important;display:block!important}
+  nav,#splash,.topbar .tb-right,.export-bar,.btn-back,.mon-edit,.pag,.overlay{display:none!important}
+  .main{display:block!important;overflow:visible!important}
+  .content{overflow:visible!important;padding:0!important}
+  .page{display:block!important}
+  .panel{box-shadow:none!important;border:1px solid #ddd!important}
+  canvas{max-width:100%!important}
+}
+@media(max-width:900px){
+  #splash{grid-template-columns:1fr}
+  #splash .sp-right{display:none}
+  .det-grid{grid-template-columns:1fr}
+  .chart-row.c2,.chart-row.c3,.chart-row.c4{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body class="splash-on">
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="geo"></div>
+  <div class="gl"></div>
+  <div class="sp-left">
+    <div class="sp-badge">
+      <div class="sp-flag"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 62" width="96" height="62"><rect y="0" width="96" height="10.33" fill="#009B3A"/><rect y="10.33" width="96" height="10.33" fill="#FEDF00"/><rect y="20.66" width="96" height="10.33" fill="#009B3A"/><rect y="30.99" width="96" height="10.33" fill="#FEDF00"/><rect y="41.32" width="96" height="10.33" fill="#009B3A"/><rect y="51.65" width="96" height="10.35" fill="#FEDF00"/><rect x="0" y="0" width="38" height="31" fill="#003399"/><polygon points="9.5,6 10.7,9.9 14.8,9.9 11.6,12.2 12.7,16.1 9.5,13.8 6.3,16.1 7.4,12.2 4.2,9.9 8.3,9.9" fill="white"/><polygon points="19,6 20.2,9.9 24.3,9.9 21.1,12.2 22.2,16.1 19,13.8 15.8,16.1 16.9,12.2 13.7,9.9 17.8,9.9" fill="white"/><polygon points="9.5,17 10.7,20.9 14.8,20.9 11.6,23.2 12.7,27.1 9.5,24.8 6.3,27.1 7.4,23.2 4.2,20.9 8.3,20.9" fill="white"/><polygon points="19,17 20.2,20.9 24.3,20.9 21.1,23.2 22.2,27.1 19,24.8 15.8,27.1 16.9,23.2 13.7,20.9 17.8,20.9" fill="white"/><polygon points="28.5,17 29.7,20.9 33.8,20.9 30.6,23.2 31.7,27.1 28.5,24.8 25.3,27.1 26.4,23.2 23.2,20.9 27.3,20.9" fill="white"/></svg></div>
+      <div class="sp-gov"><div class="l1">Governo do Estado de</div><div class="l2">GOIÁS</div></div>
+    </div>
+    <div class="sp-h1">MONITORAMENTO<br>DE <span class="acc">INDICADORES</span></div>
+    <div class="sp-sub">Painel de Gestão Estratégica</div>
+    <div class="sp-line"></div>
+    <div class="sp-desc">Acompanhamento sistemático de <strong id="sp-desc-total">455</strong> indicadores estratégicos distribuídos em <strong id="sp-desc-orgaos">48</strong> órgãos do Estado de Goiás, com dois eixos de monitoramento: <strong>status de registro</strong> e <strong>evolução do desempenho</strong>.</div>
+    <button class="sp-btn" onclick="enterApp()"><span>Acessar Painel</span><span class="sp-arrow">→</span></button>
+    <div class="sp-meta"><div class="dot"></div><span>Dados simulados para protótipo · Março/2026</span></div>
+  </div>
+  <div class="sp-right">
+    <div class="sp-right-content">
+      <!-- Totais -->
+      <div class="sp-bigcards">
+        <div class="sp-bigcard bc-total">
+          <div class="bc-icon">📊</div>
+          <div class="bc-num" id="sp-total">455</div>
+          <div class="bc-lbl">Indicadores</div>
+        </div>
+        <div class="sp-bigcard bc-orgaos">
+          <div class="bc-icon">🏛️</div>
+          <div class="bc-num" id="sp-orgaos">48</div>
+          <div class="bc-lbl">Órgãos</div>
+        </div>
+      </div>
+      <!-- Status Monitoramento + Evolução integrados -->
+      <div class="sp-section-lbl">Status de Monitoramento</div>
+      <div class="sp-mon-ev-block">
+        <!-- Linha de monitoramento -->
+        <div class="sp-status-grid">
+          <div class="sp-status-card sc-atualizado sp-atualizado-destaque">
+            <div class="sc-icon">✅</div>
+            <div class="sc-num" id="sp-atualizado">312</div>
+            <div class="sc-lbl">Atualizado</div>
+            <!-- Seta conectora para evolução -->
+            <div class="sc-connector-arrow">▼</div>
+          </div>
+          <div class="sp-status-card sc-atraso">
+            <div class="sc-icon">🔴</div>
+            <div class="sc-num" id="sp-atraso">75</div>
+            <div class="sc-lbl">Em Atraso</div>
+          </div>
+          <div class="sp-status-card sc-nao">
+            <div class="sc-icon">⬜</div>
+            <div class="sc-num" id="sp-nao">68</div>
+            <div class="sc-lbl">Não Iniciado</div>
+          </div>
+        </div>
+        <!-- Bloco de evolução subordinado ao "Atualizado" -->
+        <div class="sp-ev-context-block">
+          <div class="sp-ev-context-label">
+            <span class="sp-ev-badge-dot"></span>
+            Evolução dos indicadores <strong>Atualizados</strong>
+          </div>
+          <div class="sp-ev-grid">
+            <div class="sp-ev-card ec-positiva">
+              <div class="ec-icon">📈</div>
+              <div class="ec-num" id="sp-evpos">178</div>
+              <div class="ec-lbl">Evolução Positiva</div>
+            </div>
+            <div class="sp-ev-card ec-estavel">
+              <div class="ec-icon">➡️</div>
+              <div class="ec-num" id="sp-evest">89</div>
+              <div class="ec-lbl">Evolução Estável</div>
+            </div>
+            <div class="sp-ev-card ec-negativa">
+              <div class="ec-icon">📉</div>
+              <div class="ec-num" id="sp-evneg">45</div>
+              <div class="ec-lbl">Evolução Negativa</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Gráficos: Status Monitoramento e Status Evolução -->
+      <div class="sp-charts-row">
+        <div class="sp-chart-box">
+          <div class="sc-title">Status de Monitoramento</div>
+          <canvas id="chart-status-mon-home"></canvas>
+          <div class="sp-chart-legend" id="legend-status-mon-home"></div>
+        </div>
+        <div class="sp-chart-box">
+          <div class="sc-title">Status de Evolução</div>
+          <canvas id="chart-status-ev-home"></canvas>
+          <div class="sp-chart-legend" id="legend-status-ev-home"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Acesso Rápido -->
+    <div class="sp-quicklinks">
+      <div class="sp-quicklinks-lbl">Acesso Rápido</div>
+      <div class="sp-ql-btn ql-visao" onclick="enterApp();showPage('visao-geral',document.querySelectorAll('.nav-item')[0])">
+        <span class="ql-icon">📊</span>
+        <div class="ql-text"><div class="ql-title">Visão Geral</div><div class="ql-desc">Resumo executivo</div></div>
+        <span class="ql-arrow">›</span>
+      </div>
+      <div class="sp-ql-btn ql-visao" onclick="enterApp();showPage('indicadores',document.querySelectorAll('.nav-item')[1])">
+        <span class="ql-icon">📋</span>
+        <div class="ql-text"><div class="ql-title">Indicadores</div><div class="ql-desc">Lista completa</div></div>
+        <span class="ql-arrow">›</span>
+      </div>
+      <div class="sp-ql-btn ql-visao" onclick="enterApp();showPage('orgaos',document.querySelectorAll('.nav-item')[2])">
+        <span class="ql-icon">🏛️</span>
+        <div class="ql-text"><div class="ql-title">Por Órgão</div><div class="ql-desc">Secretarias</div></div>
+        <span class="ql-arrow">›</span>
+      </div>
+      <div class="sp-ql-btn ql-visao" onclick="enterApp();showPage('metas',document.querySelectorAll('.nav-item')[3])">
+        <span class="ql-icon">🎯</span>
+        <div class="ql-text"><div class="ql-title">Metas PPA</div><div class="ql-desc">2026/2027</div></div>
+        <span class="ql-arrow">›</span>
+      </div>
+      <div class="sp-ql-btn" style="background:rgba(180,0,0,.2);border-color:rgba(255,80,80,.4)" onclick="enterApp();showPage('alertas',document.querySelectorAll('.nav-item')[4])">
+        <span class="ql-icon">🚨</span>
+        <div class="ql-text"><div class="ql-title">Alertas</div><div class="ql-desc">Em atraso / negativos</div></div>
+        <span class="ql-arrow">›</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav>
+  <div class="nav-logo">
+    <div class="gov">Governo de Goiás</div>
+    <div class="title">Monitoramento</div>
+    <div class="sub">Indicadores 2025–2026</div>
+  </div>
+  <div class="nav-home" onclick="goHome()">🏠 Início</div>
+  <div class="nav-section">Navegação</div>
+  <div class="nav-item active" onclick="showPage('visao-geral',this)"><span class="ico">📊</span>Visão Geral</div>
+  <div class="nav-item" onclick="showPage('indicadores',this)"><span class="ico">📋</span>Indicadores</div>
+  <div class="nav-item" onclick="showPage('orgaos',this)"><span class="ico">🏛️</span>Por Órgão</div>
+  <div class="nav-item" onclick="showPage('metas',this)"><span class="ico">🎯</span>Metas PPA</div>
+  <div class="nav-item" onclick="showPage('alertas',this)"><span class="ico">🚨</span>Alertas</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="tb-title" id="tb-title">Visão Geral</div>
+      <div class="tb-sub" id="tb-sub">Atualizado em 17/03/2026</div>
+    </div>
+    <div class="tb-right">
+      <input class="search-box" id="search-box" placeholder="🔍 Buscar indicador..." oninput="handleSearch()">
+      <div class="export-sep"></div>
+      <div class="export-bar">
+        <button class="btn-export xlsx" onclick="exportXLSX()">📊 Excel</button>
+        <button class="btn-export csv" onclick="exportCSV()">📄 CSV</button>
+        <button class="btn-export pdf" onclick="window.print()">🖨️ PDF</button>
+      </div>
+      <span class="badge-date">Mar/2026</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- VISÃO GERAL -->
+    <div class="page active" id="page-visao-geral">
+      <!-- Legenda dupla -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:12px;background:var(--panel);border-radius:var(--r);border:1px solid var(--border);overflow:hidden">
+        <div style="padding:12px 16px;border-right:1px solid var(--border);border-left:3px solid #6c757d">
+          <div class="dl-title">📌 Status de Monitoramento</div>
+          <div class="dl-item"><span class="dl-dot" style="background:#9e9e9e"></span><strong>Não Iniciado:</strong>&nbsp;Indicador que não teve nenhum monitoramento realizado.</div>
+          <div class="dl-item" style="margin-top:4px"><span class="dl-dot" style="background:#1e7e34"></span><strong>Atualizado:</strong>&nbsp;Indicador que teve o último monitoramento realizado conforme sua periodicidade.</div>
+          <div class="dl-item" style="margin-top:4px"><span class="dl-dot" style="background:#d62728"></span><strong>Em Atraso:</strong>&nbsp;Indicador que não teve o último monitoramento realizado conforme sua periodicidade.</div>
+        </div>
+        <div style="padding:12px 16px;border-left:3px solid #0d6ebd">
+          <div class="dl-title">📈 Status de Evolução</div>
+          <div class="dl-item"><span class="dl-dot" style="background:#1e7e34"></span><strong>Evolução Positiva:</strong>&nbsp;Resultado melhorou em relação ao período anterior.</div>
+          <div class="dl-item" style="margin-top:4px"><span class="dl-dot" style="background:#0d6ebd"></span><strong>Evolução Estável:</strong>&nbsp;Resultado mantido sem variação significativa.</div>
+          <div class="dl-item" style="margin-top:4px"><span class="dl-dot" style="background:#d62728"></span><strong>Evolução Negativa:</strong>&nbsp;Resultado piorou em relação ao período anterior.</div>
+        </div>
+      </div>
+
+      <!-- KPI row - Monitoramento + Evolução integrados -->
+      <div id="kpi-block-vg"></div>
+
+      <!-- Filtro -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;padding:10px 14px;background:#f8f9fb;border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap">🔍 Filtrar</span>
+        <select id="f-vg-orgao" onchange="applyPageFilter('vg')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;min-width:200px;cursor:pointer">
+          <option value="">Todos os Órgãos</option>
+        </select>
+        <select id="f-vg-per" onchange="applyPageFilter('vg')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
+          <option value="">Todas as Periodicidades</option>
+          <option>MENSAL</option><option>BIMESTRAL</option><option>TRIMESTRAL</option><option>SEMESTRAL</option><option>QUADRIMESTRAL</option>
+        </select>
+        <select id="f-vg-mon" onchange="applyPageFilter('vg')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
+          <option value="">Todos os Status Monitoramento</option>
+          <option value="nao_iniciado">Não Iniciado</option>
+          <option value="atualizado">Atualizado</option>
+          <option value="em_atraso">Em Atraso</option>
+        </select>
+        <select id="f-vg-ev" onchange="applyPageFilter('vg')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
+          <option value="">Todos os Status Evolução</option>
+          <option value="positiva">Evolução Positiva</option>
+          <option value="estavel">Evolução Estável</option>
+          <option value="negativa">Evolução Negativa</option>
+        </select>
+        <button onclick="clearFiltroVG()" style="padding:6px 14px;border:1.5px solid #d62728;border-radius:6px;font-size:12px;font-weight:600;color:#d62728;background:#fff;cursor:pointer;white-space:nowrap;font-family:'Barlow',sans-serif" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='#fff'">✕ Limpar Filtros</button>
+      </div>
+
+      <div class="chart-row c3" style="align-items:stretch">
+        <div style="display:flex;flex-direction:column">
+          <div class="panel" id="panel-status-toggle" style="flex:1;margin-bottom:12px;border-left:3px solid #1e7e34;display:flex;flex-direction:column;min-height:260px">
+            <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span id="status-toggle-title">Status de Monitoramento</span>
+              <button id="btn-toggle-status"
+                onclick="toggleStatusChart()"
+                title="Alternar entre gráficos"
+                style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:#f0faf2;border:1.5px solid #a5d6a7;border-radius:20px;font-size:10px;font-weight:700;color:#1e7e34;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'Barlow',sans-serif;letter-spacing:.3px"
+                onmouseover="this.style.background='#c3e6cb'"
+                onmouseout="this.style.background='#f0faf2'">
+                <span id="btn-toggle-icon" style="font-size:12px">📈</span>
+                <span id="btn-toggle-label">Ver Evolução</span>
+              </button>
+            </div>
+            <div id="wrap-chart-mon" style="flex:1;display:flex;flex-direction:row;align-items:center;gap:8px;min-height:0">
+              <div style="flex:1;min-width:0;min-height:0;position:relative;align-self:stretch">
+                <canvas id="chart-status-mon" style="position:absolute;inset:0;width:100%!important;height:100%!important"></canvas>
+              </div>
+              <div class="legend" id="legend-status-mon" style="width:130px;flex-shrink:0"></div>
+            </div>
+            <div id="wrap-chart-ev" style="display:none;flex:1;flex-direction:row;align-items:center;gap:8px;min-height:0">
+              <div style="flex:1;min-width:0;min-height:0;position:relative;align-self:stretch">
+                <canvas id="chart-status-ev" style="position:absolute;inset:0;width:100%!important;height:100%!important"></canvas>
+              </div>
+              <div class="legend" id="legend-status-ev" style="width:130px;flex-shrink:0"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="display:flex;flex-direction:column">
+          <div class="panel-title">Distribuição por Periodicidade</div>
+          <canvas id="chart-per" height="150"></canvas>
+        </div>
+        <div class="panel" style="display:flex;flex-direction:column">
+          <div class="panel-title">Indicadores por Órgão <span>Top 10</span></div>
+          <canvas id="chart-orgaos" height="150"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-row c2" style="margin-bottom:0">
+        <div class="panel" style="border-left:3px solid #1e7e34">
+          <div class="panel-title" style="color:#1e7e34">✅ Atualizado · Evolução Negativa <span id="alert-count-atneg-lbl"></span></div>
+          <div id="alert-list-atneg" style="max-height:260px;overflow-y:auto"></div>
+        </div>
+        <div class="panel" style="border-left:3px solid #d62728">
+          <div class="panel-title" style="color:#d62728">🔴 Em Atraso <span id="alert-count-atraso-lbl"></span></div>
+          <div id="alert-list-atraso" style="max-height:260px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INDICADORES -->
+    <div class="page" id="page-indicadores">
+      <div id="kpi-block-ind"></div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;padding:10px 14px;background:#f8f9fb;border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase">🔍 Filtrar</span>
+        <select id="f-ind-orgao" onchange="applyPageFilter('ind')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;min-width:180px;cursor:pointer">
+          <option value="">Todos os Órgãos</option>
+        </select>
+        <select id="f-ind-per" onchange="applyPageFilter('ind')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
+          <option value="">Todas as Periodicidades</option>
+          <option>MENSAL</option><option>BIMESTRAL</option><option>TRIMESTRAL</option><option>SEMESTRAL</option><option>QUADRIMESTRAL</option>
+        </select>
+        <select id="f-ind-mon" onchange="applyPageFilter('ind')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
+          <option value="">Status Monitoramento</option>
+          <option value="nao_iniciado">Não Iniciado</option>
+          <option value="atualizado">Atualizado</option>
+          <option value="em_atraso">Em Atraso</option>
+        </select>
+        <select id="f-ind-ev" onchange="applyPageFilter('ind')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
+          <option value="">Status Evolução</option>
+          <option value="positiva">Evolução Positiva</option>
+          <option value="estavel">Evolução Estável</option>
+          <option value="negativa">Evolução Negativa</option>
+        </select>
+        <button onclick="clearFiltroInd()" style="padding:6px 14px;border:1.5px solid #d62728;border-radius:6px;font-size:12px;font-weight:600;color:#d62728;background:#fff;cursor:pointer;white-space:nowrap;font-family:'Barlow',sans-serif" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='#fff'">✕ Limpar Filtros</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Lista de Indicadores <span id="ind-count-lbl"></span></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:center">Código</th>
+                <th style="text-align:center">Indicador</th>
+                <th style="text-align:center">Órgão</th>
+                <th style="text-align:center">Period.</th>
+                <th style="text-align:center">Último Valor</th>
+                <th style="text-align:center">Unidade</th>
+                <th style="text-align:center">Último Monitoramento</th>
+                <th style="text-align:center">Status Monitoramento</th>
+                <th style="text-align:center">Status Evolução</th>
+              </tr>
+            </thead>
+            <tbody id="ind-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pag">
+          <span id="pag-info"></span>
+          <div class="pag-btns" id="pag-btns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POR ÓRGÃO -->
+    <div class="page" id="page-orgaos">
+      <div id="kpi-block-org"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;padding:10px 14px;background:#f8f9fb;border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">🔍 Filtrar</span>
+        <select id="f-org-orgao" onchange="applyPageFilter('org')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:#fff;outline:none;min-width:200px;cursor:pointer">
+          <option value="">Todos os Órgãos</option>
+        </select>
+        <select id="f-org-mon" onchange="applyPageFilter('org')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:#fff;outline:none;cursor:pointer">
+          <option value="">Status Monitoramento</option>
+          <option value="nao_iniciado">Não Iniciado</option>
+          <option value="atualizado">Atualizado</option>
+          <option value="em_atraso">Em Atraso</option>
+        </select>
+        <select id="f-org-ev" onchange="applyPageFilter('org')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:#fff;outline:none;cursor:pointer">
+          <option value="">Status Evolução</option>
+          <option value="positiva">Evolução Positiva</option>
+          <option value="estavel">Evolução Estável</option>
+          <option value="negativa">Evolução Negativa</option>
+        </select>
+        <button onclick="clearFiltroOrg()" style="padding:6px 14px;border:1.5px solid #d62728;border-radius:6px;font-size:12px;font-weight:600;color:#d62728;background:#fff;cursor:pointer;white-space:nowrap;font-family:'Barlow',sans-serif" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='#fff'">✕ Limpar Filtros</button>
+      </div>
+      <div id="orgaos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px"></div>
+    </div>
+
+    <!-- METAS PPA -->
+    <div class="page" id="page-metas">
+      <div id="kpi-block-met"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;padding:10px 14px;background:#f8f9fb;border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">🔍 Filtrar</span>
+        <select id="f-met-orgao" onchange="applyPageFilter('met')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:#fff;outline:none;min-width:200px;cursor:pointer">
+          <option value="">Todos os Órgãos</option>
+        </select>
+        <button onclick="clearFiltroMet()" style="padding:6px 14px;border:1.5px solid #d62728;border-radius:6px;font-size:12px;font-weight:600;color:#d62728;background:#fff;cursor:pointer;white-space:nowrap;font-family:'Barlow',sans-serif" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='#fff'">✕ Limpar Filtros</button>
+      </div>
+      <div class="kpi-row" id="metas-kpis"></div>
+      <div class="chart-row c2">
+        <div class="panel" style="max-height:420px;overflow:hidden;display:flex;flex-direction:column">
+          <div class="panel-title">Top 15 — Maior % Atingimento <span>Metas 2026</span></div>
+          <div style="overflow-y:auto;flex:1"><canvas id="chart-metas-prog"></canvas></div>
+        </div>
+        <div class="panel" style="max-height:420px;overflow:hidden;display:flex;flex-direction:column">
+          <div class="panel-title">Top 15 — Menor % Atingimento <span>Metas 2026</span></div>
+          <div style="overflow-y:auto;flex:1"><canvas id="chart-metas-piores"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-row c2">
+        <div class="panel">
+          <div class="panel-title">Acima / Na Meta <span id="metas-acima-lbl"></span></div>
+          <div id="metas-acima-list" style="max-height:320px;overflow-y:auto"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Abaixo da Meta <span id="metas-abaixo-lbl"></span></div>
+          <div id="metas-abaixo-list" style="max-height:320px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="page" id="page-alertas">
+      <div id="kpi-block-aler"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;padding:10px 14px;background:#f8f9fb;border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">🔍 Filtrar</span>
+        <select id="f-aler-orgao" onchange="applyPageFilter('aler')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:#fff;outline:none;min-width:200px;cursor:pointer">
+          <option value="">Todos os Órgãos</option>
+        </select>
+        <button onclick="clearFiltroAler()" style="padding:6px 14px;border:1.5px solid #d62728;border-radius:6px;font-size:12px;font-weight:600;color:#d62728;background:#fff;cursor:pointer;white-space:nowrap;font-family:'Barlow',sans-serif" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='#fff'">✕ Limpar Filtros</button>
+      </div>
+      <div class="kpi-row" id="alertas-kpis"></div>
+      <div class="chart-row c2">
+        <div class="panel" style="display:flex;flex-direction:column">
+          <div class="panel-title">Em Atraso por Órgão <span id="alerta-org-lbl"></span></div>
+          <div style="overflow-y:auto;flex:1;max-height:340px">
+            <div class="abar-wrap" id="chart-alerta-orgaos-html"></div>
+          </div>
+          <div class="abar-legend" id="abar-legend" style="display:flex">
+            <div class="abar-legend-item"><div class="abar-legend-dot" style="background:#c0392b"></div>Em Atraso</div>
+            <div class="abar-legend-item"><div class="abar-legend-dot" style="background:#d4a900"></div>Evolução Negativa</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Atrasos por Periodicidade</div>
+          <canvas id="chart-alerta-per" height="200"></canvas>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Indicadores em Atraso ou Evolução Negativa <span id="alertas-todos-lbl"></span></div>
+        <div id="alertas-full-list" class="alertas-list-scroll" style="max-height:400px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- DETALHE -->
+    <div class="page" id="page-detalhe">
+      <button class="btn-back" onclick="goBack()">← Voltar</button>
+      <div class="det-grid">
+        <div class="det-left" id="det-left"></div>
+        <div class="det-right" id="det-right"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL MONITORAMENTO -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-tag">Registrar Monitoramento</div>
+        <div class="modal-ind-nome" id="modal-ind-nome"></div>
+      </div>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>
+    </div>
+    <div class="modal-section-title">Dados do Indicador</div>
+    <div class="modal-readonly-grid">
+      <div class="mrf"><span class="mrf-lbl">Código</span><div class="mrf-val" id="m-codigo"></div></div>
+      <div class="mrf"><span class="mrf-lbl">Periodicidade</span><div class="mrf-val" id="m-per"></div></div>
+      <div class="mrf"><span class="mrf-lbl">Unidade</span><div class="mrf-val" id="m-un"></div></div>
+      <div class="mrf"><span class="mrf-lbl">Linha Base</span><div class="mrf-val" id="m-lb"></div></div>
+      <div class="mrf"><span class="mrf-lbl">Meta 2026</span><div class="mrf-val" id="m-meta26"></div></div>
+      <div class="mrf"><span class="mrf-lbl">Polaridade</span><div class="mrf-val" id="m-pol"></div></div>
+      <div class="mrf"><span class="mrf-lbl">Status Monitoramento</span><div class="mrf-val" id="m-st-mon"></div></div>
+      <div class="mrf"><span class="mrf-lbl">Status Evolução</span><div class="mrf-val" id="m-st-ev"></div></div>
+      <div class="mrf mrf-wide"><span class="mrf-lbl">Nome</span><div class="mrf-val" id="m-nome"></div></div>
+      <div class="mrf mrf-wide"><span class="mrf-lbl">Órgão</span><div class="mrf-val" id="m-orgao"></div></div>
+    </div>
+    <div class="modal-section-title">Registrar Valor</div>
+    <div class="modal-form-row">
+      <div class="mf-group"><label class="mf-lbl">Período <span class="req">*</span></label><input class="mf-input" id="edit-periodo" readonly></div>
+      <div class="mf-group"><label class="mf-lbl">Valor Monitorado <span class="req">*</span></label><input class="mf-input" id="edit-valor" type="number" step="any" placeholder="Informe o valor..."></div>
+    </div>
+    <div class="mf-group" style="padding:12px 22px 0">
+      <label class="mf-lbl">Observação</label>
+      <textarea class="mf-input mf-textarea" id="edit-obs" maxlength="2000" oninput="updateCharCount(this)" placeholder="Justificativas, contexto ou notas relevantes..."></textarea>
+    </div>
+    <div class="char-count" id="char-count">2000 caracteres restantes</div>
+    <div class="modal-section-title">Histórico de Registros</div>
+    <div class="mon-hist-table" id="mon-hist-table"></div>
+    <div style="padding:14px 22px 18px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border)">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveModal()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÓRGÃO DRAWER -->
+<div id="orgao-drawer-overlay" onclick="if(event.target===this)closeOrgaoDrawer()">
+  <div id="orgao-drawer">
+    <div class="od-header">
+      <div class="od-header-top">
+        <div class="od-title" id="od-title">Órgão</div>
+        <button class="od-close" onclick="closeOrgaoDrawer()">✕</button>
+      </div>
+      <div class="od-kpis" id="od-kpis"></div>
+    </div>
+    <div class="od-body">
+      <table class="od-table">
+        <thead><tr>
+          <th>Código</th><th>Indicador</th><th>Period.</th>
+          <th>Último Valor</th><th>Status Monitoramento</th><th>Status Evolução</th>
+        </tr></thead>
+        <tbody id="od-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+.abar-wrap{display:flex;flex-direction:column;gap:5px;padding:6px 12px 6px 8px;min-width:0}
+.abar-row{display:grid;grid-template-columns:150px 1fr 28px;align-items:center;gap:8px;min-width:0}
+.abar-label{font-size:11px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.abar-track{height:16px;background:#f0f2f5;border-radius:4px;overflow:hidden;display:flex;min-width:0}
+.abar-seg-al{height:100%;background:linear-gradient(90deg,#c0392b,#e74c3c);transition:width .6s ease;flex-shrink:0}
+.abar-seg-neg{height:100%;background:linear-gradient(90deg,#d4a900,#f1c40f);transition:width .6s ease;flex-shrink:0}
+.abar-total{font-size:11px;font-weight:700;color:#444;text-align:left;white-space:nowrap}
+.abar-legend{display:flex;gap:14px;padding:0 12px 6px 8px;margin-top:2px}
+.abar-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+.abar-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+</style>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// DADOS DE EXEMPLO
+// Status Monitoramento: nao_iniciado | atualizado | em_atraso
+// Status Evolução:       positiva    | estavel    | negativa
+// ─────────────────────────────────────────────────────────────────────────────
+const ORGAOS = [
+  {id:'SEGOV',nome:'Secretaria de Governo'},
+  {id:'SEPLAN',nome:'Secretaria de Planejamento'},
+  {id:'SEEC',nome:'Secretaria da Educação'},
+  {id:'SESAU',nome:'Secretaria da Saúde'},
+  {id:'SEINFRA',nome:'Secretaria de Infraestrutura'},
+  {id:'SEMA',nome:'Secretaria do Meio Ambiente'},
+  {id:'SECID',nome:'Secretaria das Cidades'},
+  {id:'SEFAZ',nome:'Secretaria da Fazenda'},
+  {id:'SEJUV',nome:'Secretaria da Juventude'},
+  {id:'SETUR',nome:'Secretaria do Turismo'},
+];
+
+function gerarDados(){
+  const inds=[];
+  const programas=['Goiás Educa','Goiás + Saúde','Infraestrutura para Todos','Goiás Verde','Cidades Inteligentes','Fazenda Eficiente','Juventude Ativa','Turismo Sustentável','Governa Goiás','Planejamento Estratégico'];
+  const periodicidades=['MENSAL','BIMESTRAL','TRIMESTRAL','SEMESTRAL','QUADRIMESTRAL'];
+  const unidades=['PERCENTUAL','NÚMERO','NÚMERO','PERCENTUAL','NÚMERO'];
+  const monStatus=['nao_iniciado','atualizado','em_atraso'];
+  const evStatus=['positiva','estavel','negativa'];
+  const monPesos=[15,69,16]; // % de cada status
+  const evPesos=[57,28.5,14.5];
+
+  let idx=1;
+  ORGAOS.forEach((org,oi)=>{
+    const qtd=30+Math.floor(Math.random()*20);
+    for(let i=0;i<qtd;i++){
+      const per=periodicidades[Math.floor(Math.random()*periodicidades.length)];
+      const un=unidades[Math.floor(Math.random()*unidades.length)];
+      const lb=Math.round(30+Math.random()*50);
+      const meta=Math.round(lb*1.1+Math.random()*20);
+      // Data de referência: hoje = 01/04/2026
+      const HOJE = new Date(2026, 3, 1); // mês 3 = abril (0-based)
+
+      // Gerar períodos com label e data de vencimento (último dia do período)
+      const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      function gerarPeriodosComPrazo(periodicidade){
+        const lista=[];
+        if(periodicidade==='MENSAL'){
+          for(let a=2025;a<=2026;a++) for(let m=0;m<12;m++){
+            if(a===2026&&m>2) break;
+            const venc=new Date(a,m+1,0); // último dia do mês
+            lista.push({label:`${meses[m]}/${String(a).slice(2)}`,venc});
+          }
+        } else if(periodicidade==='BIMESTRAL'){
+          [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]].forEach(([m0,m1])=>{
+            [2025,2026].forEach(a=>{
+              if(a===2026&&m0>2) return;
+              const venc=new Date(a,m1+1,0);
+              lista.push({label:`${meses[m0]}/${String(a).slice(2)}`,venc});
+            });
+          });
+        } else if(periodicidade==='TRIMESTRAL'){
+          // 1ºTrim: vence 31/mar; 2º: 30/jun; 3º: 30/set; 4º: 31/dez
+          [[0,'1º Trim',2],[3,'2º Trim',5],[6,'3º Trim',8],[9,'4º Trim',11]].forEach(([,label,mFim])=>{
+            [2025,2026].forEach(a=>{
+              if(a===2026&&mFim>2) return; // só 1ºTrim/26 está no passado (venceu 31/mar/26)
+              const venc=new Date(a,mFim+1,0);
+              lista.push({label:`${label}/${String(a).slice(2)}`,venc});
+            });
+          });
+        } else if(periodicidade==='QUADRIMESTRAL'){
+          // 1º: vence 30/abr; 2º: 31/ago; 3º: 31/dez
+          [[0,'1º Quad',3],[4,'2º Quad',7],[8,'3º Quad',11]].forEach(([,label,mFim])=>{
+            [2025,2026].forEach(a=>{
+              if(a===2026&&mFim>2) return;
+              const venc=new Date(a,mFim+1,0);
+              lista.push({label:`${label}/${String(a).slice(2)}`,venc});
+            });
+          });
+        } else if(periodicidade==='SEMESTRAL'){
+          // 1º: vence 30/jun; 2º: 31/dez
+          [[0,'1º Sem',5],[6,'2º Sem',11]].forEach(([,label,mFim])=>{
+            [2025,2026].forEach(a=>{
+              if(a===2026&&mFim>2) return;
+              const venc=new Date(a,mFim+1,0);
+              lista.push({label:`${label}/${String(a).slice(2)}`,venc});
+            });
+          });
+        }
+        return lista;
+      }
+
+      const todosPeriodos = gerarPeriodosComPrazo(per);
+      // Apenas períodos cujo prazo já venceu até hoje (conforme data atual)
+      const periodosVencidos = todosPeriodos.filter(p => p.venc < HOJE);
+
+      // Status de monitoramento é derivado da presença do valor no último período
+      // vencido conforme a periodicidade do indicador cruzada com a data atual:
+      // - nao_iniciado: nenhum período venceu OU nunca houve qualquer registro
+      // - atualizado:   o último período vencido possui valor registrado
+      // - em_atraso:    o último período vencido NÃO possui valor registrado
+      const rMon = Math.random()*100;
+      const semNenhumRegistro = periodosVencidos.length === 0 || rMon < monPesos[0];
+      const ultPeriodoRegistrado = !semNenhumRegistro && rMon < monPesos[0] + monPesos[1];
+
+      let monSt;
+      if(periodosVencidos.length === 0){
+        monSt = 'nao_iniciado'; // nenhum período venceu ainda → não pode estar em atraso
+      } else if(semNenhumRegistro){
+        monSt = 'nao_iniciado'; // nunca houve nenhum registro
+      } else if(ultPeriodoRegistrado){
+        monSt = 'atualizado';   // último período vencido tem valor → atualizado
+      } else {
+        monSt = 'em_atraso';    // último período vencido sem valor → em atraso
+      }
+
+      // Montar histórico de períodos conforme status
+      let periodosHist;
+      if(monSt === 'em_atraso' && periodosVencidos.length > 0){
+        const ultVencido = periodosVencidos[periodosVencidos.length-1];
+        const anteriores = periodosVencidos.slice(0,-1);
+        const nAnt = Math.max(1, Math.min(anteriores.length, 1+Math.floor(Math.random()*(Math.min(anteriores.length,4)))));
+        periodosHist = [...anteriores.slice(-nAnt), ultVencido];
+      } else {
+        const nPer = Math.max(2, Math.min(periodosVencidos.length, 2+Math.floor(Math.random()*(periodosVencidos.length||1))));
+        periodosHist = periodosVencidos.slice(-nPer);
+      }
+
+      // Gerar valores para todos os períodos registrados
+      const valoresGerados = periodosHist.map((p,pi)=>{
+        if(monSt==='nao_iniciado') return null;
+        if(monSt==='em_atraso' && pi===periodosHist.length-1) return null; // último não registrado
+        return Math.round(lb + Math.random()*(meta-lb)*(pi/(periodosHist.length-1||1)));
+      });
+
+      // Calcular evolução comparando último vs penúltimo valor registrado + polaridade
+      const pol = ['maior_melhor','maior_melhor','maior_melhor','menor_melhor','neutro'][Math.floor(Math.random()*5)];
+      let evSt = null;
+      if(monSt==='atualizado'){
+        const registrados = valoresGerados.filter(v=>v!==null);
+        if(registrados.length>=2){
+          const ultV   = registrados[registrados.length-1];
+          const penult = registrados[registrados.length-2];
+          const diff = ultV - penult;
+          if(diff === 0){
+            evSt = 'estavel';
+          } else if(pol==='maior_melhor'){
+            evSt = diff > 0 ? 'positiva' : 'negativa';
+          } else if(pol==='menor_melhor'){
+            evSt = diff < 0 ? 'positiva' : 'negativa';
+          } else {
+            evSt = 'estavel';
+          }
+        }
+      }
+
+      const monArr = periodosHist.map((p,pi)=>{
+        const isUltimo = pi===periodosHist.length-1;
+        const val = valoresGerados[pi];
+        let mst, evPeriodo;
+
+        if(monSt==='nao_iniciado'){
+          mst='nao_iniciado'; evPeriodo=null;
+        } else if(monSt==='em_atraso' && isUltimo){
+          mst='em_atraso'; evPeriodo=null;
+        } else {
+          mst='atualizado';
+          if(isUltimo){
+            evPeriodo = evSt; // evolução calculada real
+          } else {
+            // evolução dos períodos anteriores: comparar com o anterior
+            const prevVal = pi>0 ? valoresGerados[pi-1] : null;
+            if(prevVal===null || val===null){
+              evPeriodo = null;
+            } else {
+              const d = val - prevVal;
+              if(d===0) evPeriodo='estavel';
+              else if(pol==='maior_melhor') evPeriodo = d>0?'positiva':'negativa';
+              else if(pol==='menor_melhor') evPeriodo = d<0?'positiva':'negativa';
+              else evPeriodo='estavel';
+            }
+          }
+        }
+
+        return { periodo:p.label, venc:p.venc, valor:val, st_mon:mst, st_ev:evPeriodo, observacao:'' };
+      });
+
+      // ult_val e ult_per = último período efetivamente registrado
+      const ultimoRegistrado = [...monArr].reverse().find(m=>m.valor!==null);
+      const ultVal = ultimoRegistrado ? ultimoRegistrado.valor : null;
+      const ultPerLabel = ultimoRegistrado ? ultimoRegistrado.periodo : null;
+
+      inds.push({
+        id:`IND-${String(idx).padStart(3,'0')}`,
+        nome:`Indicador ${idx} — ${org.nome.split(' ').slice(-1)[0]}`,
+        oid:org.id,
+        orgao:org.nome,
+        prog:programas[oi%programas.length],
+        inic:`Iniciativa ${i+1}`,
+        per,un,lb,
+        metas:[{ref_temporal:'2026',valor:String(meta)},{ref_temporal:'2027',valor:String(Math.round(meta*1.05))}],
+        st_mon:monSt,
+        st_ev:evSt,
+        ult_val:ultVal,
+        ult_per:ultPerLabel,
+        mon:monArr,
+        pol:pol,
+        resp:`Técnico ${org.id}`,
+        fonte:'Sistema Integrado',
+        sit:'Ativo',
+        desc:`Descrição detalhada do indicador ${idx} com fórmula de cálculo aplicada ao contexto da ${org.nome}.`,
+        form:`(Resultado obtido / Total esperado) × 100`,
+      });
+      idx++;
+    }
+  });
+  return inds;
+}
+
+const DADOS=gerarDados();
+
+// ── ATUALIZAR SPLASH COM DADOS REAIS ──
+(function updateSplashData(){
+  const total=DADOS.length;
+  const nOrgaos=new Set(DADOS.map(d=>d.oid)).size;
+  const nNao=DADOS.filter(d=>d.st_mon==='nao_iniciado').length;
+  const nAtual=DADOS.filter(d=>d.st_mon==='atualizado').length;
+  const nAtraso=DADOS.filter(d=>d.st_mon==='em_atraso').length;
+  const nPos=DADOS.filter(d=>d.st_ev==='positiva').length;
+  const nEst=DADOS.filter(d=>d.st_ev==='estavel').length;
+  const nNeg=DADOS.filter(d=>d.st_ev==='negativa').length;
+
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  set('sp-total',total);
+  set('sp-orgaos',nOrgaos);
+  set('sp-desc-total',total);
+  set('sp-desc-orgaos',nOrgaos);
+  set('sp-nao',nNao);
+  set('sp-atualizado',nAtual);
+  set('sp-atraso',nAtraso);
+  set('sp-evpos',nPos);
+  set('sp-evest',nEst);
+  set('sp-evneg',nNeg);
+  set('tb-sub',`${total} indicadores · ${nOrgaos} órgãos · Atualizado em 17/03/2026`);
+})();
+
+// ── GRÁFICOS DA TELA INICIAL ──
+(function renderHomeCharts(){
+  const nNao=DADOS.filter(d=>d.st_mon==='nao_iniciado').length;
+  const nAtual=DADOS.filter(d=>d.st_mon==='atualizado').length;
+  const nAtraso=DADOS.filter(d=>d.st_mon==='em_atraso').length;
+  const nPos=DADOS.filter(d=>d.st_ev==='positiva').length;
+  const nEst=DADOS.filter(d=>d.st_ev==='estavel').length;
+  const nNeg=DADOS.filter(d=>d.st_ev==='negativa').length;
+
+  function renderHomeDonut(chartId,legendId,labels,data,colors){
+    const ctx=document.getElementById(chartId);
+    if(!ctx)return;
+    const total=data.reduce((a,b)=>a+b,0);
+    new Chart(ctx,{
+      type:'doughnut',
+      data:{labels,datasets:[{data,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:2,hoverOffset:4}]},
+      options:{responsive:true,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${total?Math.round(c.parsed/total*1000)/10:0}%`}}}}
+    });
+    const leg=document.getElementById(legendId);
+    if(leg)leg.innerHTML=labels.map((l,i)=>`
+      <div class="sp-chart-legend-item">
+        <div class="sp-chart-legend-dot" style="background:${colors[i]}"></div>
+        <span>${l==='Não Iniciado'?'Não Iniciado':l.split(' ').slice(-1)[0]}: ${total?Math.round(data[i]/total*1000)/10:0}%</span>
+      </div>`).join('');
+  }
+
+  renderHomeDonut('chart-status-mon-home','legend-status-mon-home',
+    ['Não Iniciado','Atualizado','Em Atraso'],
+    [nNao,nAtual,nAtraso],
+    ['#ffffff','#a3e635','#f87171']);
+  renderHomeDonut('chart-status-ev-home','legend-status-ev-home',
+    ['Positiva','Estável','Negativa'],
+    [nPos,nEst,nNeg],
+    ['#a3e635','#ffffff','#f87171']);
+})();
+
+// ── ESTADO ──
+let filtros={orgao:'',per:'',mon:'',ev:'',busca:''};
+let paginaAtual=1;
+const POR_PAGINA=25;
+let indicadorAtual=null;
+let editCtx=null;
+let prevPage='indicadores';
+let charts={};
+
+// ── UTIL ──
+function fmtNum(v,un){
+  if(v===null||v===undefined)return'–';
+  let s=Number(v).toLocaleString('pt-BR',{maximumFractionDigits:2});
+  if(un==='PERCENTUAL'||un==='PORCENTAGEM')s+='%';
+  return s;
+}
+function tagMon(st){
+  const m={nao_iniciado:'⬜ Não Iniciado',atualizado:'✅ Atualizado',em_atraso:'🔴 Em Atraso'};
+  const cls={nao_iniciado:'nao-iniciado',atualizado:'atualizado',em_atraso:'em-atraso'};
+  return `<span class="tag ${cls[st]||''}">${m[st]||st||'–'}</span>`;
+}
+function tagEv(st){
+  if(!st)return`<span class="tag" style="background:#f5f5f5;color:#999">— Sem dado</span>`;
+  const m={positiva:'📈 Evolução Positiva',estavel:'➡️ Evolução Estável',negativa:'📉 Evolução Negativa'};
+  const cls={positiva:'ev-positiva',estavel:'ev-estavel',negativa:'ev-negativa'};
+  return `<span class="tag ${cls[st]||''}">${m[st]||st}</span>`;
+}
+function tagPol(p){
+  const m={maior_melhor:'⬆️ Quanto maior, melhor',menor_melhor:'⬇️ Quanto menor, melhor',neutro:'➖ Neutro'};
+  const bg={maior_melhor:'#e3f2fd',menor_melhor:'#fff3e0',neutro:'#f5f5f5'};
+  const color={maior_melhor:'#0d6ebd',menor_melhor:'#e07b00',neutro:'#757575'};
+  const label=m[p]||p||'–';
+  const b=bg[p]||'#f5f5f5';
+  const c=color[p]||'#555';
+  return `<span class="tag" style="background:${b};color:${c}">${label}</span>`;
+}
+function tagPer(p){
+  const m={MENSAL:'men',BIMESTRAL:'bim',TRIMESTRAL:'tri',SEMESTRAL:'sem-per',QUADRIMESTRAL:'qua'};
+  return `<span class="tag ${m[p]||''}">${p}</span>`;
+}
+function dadosFiltrados(){
+  return DADOS.filter(d=>{
+    if(filtros.orgao&&d.oid!==filtros.orgao)return false;
+    if(filtros.per&&d.per!==filtros.per)return false;
+    if(filtros.mon&&d.st_mon!==filtros.mon)return false;
+    if(filtros.ev&&d.st_ev!==filtros.ev)return false;
+    if(filtros.busca){
+      const q=filtros.busca.toLowerCase();
+      if(!d.nome.toLowerCase().includes(q)&&!d.orgao.toLowerCase().includes(q)&&!d.id.includes(q))return false;
+    }
+    return true;
+  });
+}
+
+function enterApp(){
+  const sp=document.getElementById('splash');
+  sp.classList.add('exiting');
+  document.body.classList.remove('splash-on');
+  sp.addEventListener('animationend',()=>{sp.style.display='none';sp.classList.remove('exiting');},{once:true});
+  if(!window._appInited){window._appInited=true;initApp();}
+}
+function goHome(){
+  const sp=document.getElementById('splash');
+  if(sp){sp.style.display='grid';sp.style.opacity='1';sp.style.transform='scale(1)';document.body.classList.add('splash-on');}
+}
+
+// ── INIT ──
+function initApp(){
+  populateOrgaoFilter();
+  buildVisaoGeral();
+  renderIndicadores();
+  buildOrgaos();
+  buildMetas();
+  buildAlertas();
+}
+function populateOrgaoFilter(){
+  const orgaos={};
+  DADOS.forEach(d=>orgaos[d.oid]=d.orgao);
+  const opts=Object.entries(orgaos).sort((a,b)=>a[1].localeCompare(b[1]))
+    .map(([id,nm])=>`<option value="${id}">${nm.substring(0,50)}</option>`).join('');
+  ['vg','ind','org','met','aler'].forEach(p=>{
+    const sel=document.getElementById(`f-${p}-orgao`);
+    if(sel&&sel.options.length<=1)sel.innerHTML+=opts;
+  });
+}
+
+// ── NAVEGAÇÃO ──
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  const titles={'visao-geral':'Visão Geral','indicadores':'Indicadores','orgaos':'Por Órgão','detalhe':'Detalhe do Indicador','metas':'Metas PPA 2025–2027','alertas':'Alertas e Monitoramento'};
+  document.getElementById('tb-title').textContent=titles[id]||id;
+  const df=dadosFiltrados();
+  document.getElementById('tb-sub').textContent=`${df.length} indicadores · ${new Set(df.map(d=>d.oid)).size} órgãos · Atualizado em 17/03/2026`;
+}
+function goBack(){
+  const pageIdx={'visao-geral':0,'indicadores':1,'orgaos':2,'metas':3,'alertas':4};
+  showPage(prevPage,document.querySelectorAll('.nav-item')[pageIdx[prevPage]??0]);
+}
+function handleSearch(){
+  filtros.busca=document.getElementById('search-box').value;
+  paginaAtual=1;
+  renderIndicadores();
+}
+
+// ── DONUT CHART ──
+function renderDonut(chartId,legendId,labels,data,colors){
+  const ctx=document.getElementById(chartId);
+  if(!ctx)return;
+  if(charts[chartId]){charts[chartId].destroy();charts[chartId]=null;}
+  ctx.removeAttribute('width');ctx.removeAttribute('height');ctx.style.width='';ctx.style.height='';
+  const total=data.reduce((a,b)=>a+b,0);
+  charts[chartId]=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:2,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} (${total?Math.round(c.parsed/total*1000)/10:0}%)`}}}}
+  });
+  if(legendId){
+    const leg=document.getElementById(legendId);
+    if(leg)leg.innerHTML=labels.map((l,i)=>`
+      <div class="leg-item">
+        <div class="leg-dot" style="background:${colors[i]}"></div>
+        <span class="leg-lbl">${l}</span>
+        <span class="leg-val">${data[i]}</span>
+        <span class="leg-pct">${total?Math.round(data[i]/total*1000)/10:0}%</span>
+      </div>`).join('');
+  }
+}
+function renderBarV(chartId,labels,data,colors){
+  const ctx=document.getElementById(chartId);
+  if(!ctx)return;
+  if(charts[chartId]){charts[chartId].destroy();charts[chartId]=null;}
+  ctx.removeAttribute('width');ctx.removeAttribute('height');ctx.style.width='';ctx.style.height='';
+  charts[chartId]=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:1.5,borderRadius:5,borderSkipped:false}]},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>`${c.parsed.y} indicadores`}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:10},color:'#555'}},
+        y:{grid:{color:'#f0f2f5'},ticks:{font:{size:10},stepSize:1},beginAtZero:true}
+      }
+    }
+  });
+}
+function renderBarH(chartId,labels,data,color,xLabel){
+  const ctx=document.getElementById(chartId);
+  if(!ctx)return;
+  if(charts[chartId]){charts[chartId].destroy();charts[chartId]=null;}
+  ctx.removeAttribute('width');ctx.removeAttribute('height');ctx.style.width='';ctx.style.height='';
+  const bgColor=Array.isArray(color)?color.map(c=>c+'cc'):color+'cc';
+  charts[chartId]=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:bgColor,borderRadius:3,label:xLabel||''}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:!!xLabel},tooltip:{callbacks:{label:c=>xLabel?c.parsed.x.toFixed(1)+xLabel:c.parsed.x}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10}}}}}
+  });
+}
+function renderBarHClickable(chartId,labels,data,color,xLabel,ids){
+  const canvas=document.getElementById(chartId);
+  if(!canvas)return;
+  if(charts[chartId]){charts[chartId].destroy();charts[chartId]=null;}
+  canvas.removeAttribute('width');canvas.removeAttribute('height');canvas.style.width='';canvas.style.height='';
+  const bgColor=Array.isArray(color)?color.map(c=>c+'cc'):color+'cc';
+  charts[chartId]=new Chart(canvas,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:bgColor,borderRadius:3,label:xLabel||''}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:!!xLabel},tooltip:{callbacks:{label:c=>xLabel?c.parsed.x.toFixed(1)+xLabel:c.parsed.x}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},color:'#0d6ebd'}}},
+      onHover:(e,els)=>{if(els.length)canvas.style.cursor='pointer';},
+      onClick:(e,els)=>{if(els.length&&ids[els[0].index])openDetalhe(ids[els[0].index]);}
+    }
+  });
+}
+
+// ── KPI BLOCK COMPARTILHADO ──
+function renderKpisVG(containerId, df){
+  const total=df.length;
+  const nNao=df.filter(d=>d.st_mon==='nao_iniciado').length;
+  const nAtual=df.filter(d=>d.st_mon==='atualizado').length;
+  const nAtraso=df.filter(d=>d.st_mon==='em_atraso').length;
+  const nPos=df.filter(d=>d.st_ev==='positiva').length;
+  const nEst=df.filter(d=>d.st_ev==='estavel').length;
+  const nNeg=df.filter(d=>d.st_ev==='negativa').length;
+  const pct=(n,t)=>t?`${(n/t*100).toFixed(1)}% do total`:'–';
+  const pctA=(n)=>nAtual?`${(n/nAtual*100).toFixed(1)}% dos atualizados`:'–';
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML=`
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">📌 Status de Monitoramento</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px">
+      <div class="kpi no-line" style="padding:10px 14px">
+        <div class="kpi-lbl">📊 Total de Indicadores</div>
+        <div class="kpi-val" style="font-size:20px">${total}</div>
+        <div class="kpi-sub">Indicadores ativos</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="kpi no-line" style="padding:10px 14px;border-radius:var(--r) var(--r) 0 0;border-bottom:none;border-left:3px solid #1e7e34;position:relative">
+          <div class="kpi-lbl">✅ Atualizado</div>
+          <div class="kpi-val green" style="font-size:20px">${nAtual}</div>
+          <div class="kpi-sub">${pct(nAtual,total)}</div>
+          <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);font-size:9px;color:#1e7e34;line-height:1;z-index:2">▼</div>
+        </div>
+        <div style="background:#f0faf2;border:1px solid #c3e6cb;border-top:none;border-radius:0 0 var(--r) var(--r);padding:6px 10px">
+          <div style="font-size:8.5px;font-weight:700;color:#1e7e34;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;display:flex;align-items:center;gap:5px"><span style="width:5px;height:5px;border-radius:50%;background:#1e7e34;display:inline-block"></span>Evolução dos atualizados</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+            <div style="text-align:center;padding:4px 3px;background:#e8f5e9;border-radius:5px;border:1px solid #a5d6a7">
+              <div style="font-size:8px;color:#1e7e34;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px">📈 Positiva</div>
+              <div style="font-size:15px;font-weight:800;color:#1e7e34;font-family:'Barlow Condensed',sans-serif;line-height:1">${nPos}</div>
+              <div style="font-size:9px;color:#555;margin-top:1px">${pctA(nPos)}</div>
+            </div>
+            <div style="text-align:center;padding:4px 3px;background:#e3f2fd;border-radius:5px;border:1px solid #90caf9">
+              <div style="font-size:8px;color:#0d6ebd;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px">➡️ Estável</div>
+              <div style="font-size:15px;font-weight:800;color:#0d6ebd;font-family:'Barlow Condensed',sans-serif;line-height:1">${nEst}</div>
+              <div style="font-size:9px;color:#555;margin-top:1px">${pctA(nEst)}</div>
+            </div>
+            <div style="text-align:center;padding:4px 3px;background:#ffebee;border-radius:5px;border:1px solid #ef9a9a">
+              <div style="font-size:8px;color:#d62728;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px">📉 Negativa</div>
+              <div style="font-size:15px;font-weight:800;color:#d62728;font-family:'Barlow Condensed',sans-serif;line-height:1">${nNeg}</div>
+              <div style="font-size:9px;color:#555;margin-top:1px">${pctA(nNeg)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="kpi no-line" style="padding:10px 14px">
+        <div class="kpi-lbl">🔴 Em Atraso</div>
+        <div class="kpi-val red" style="font-size:20px">${nAtraso}</div>
+        <div class="kpi-sub">${pct(nAtraso,total)}</div>
+      </div>
+      <div class="kpi no-line" style="padding:10px 14px">
+        <div class="kpi-lbl">⬜ Não Iniciado</div>
+        <div class="kpi-val grey" style="font-size:20px">${nNao}</div>
+        <div class="kpi-sub">${pct(nNao,total)}</div>
+      </div>
+    </div>`;
+}
+
+// ── VISÃO GERAL ──
+function buildVisaoGeral(){
+  const df=dadosFiltrados();
+  const total=df.length;
+  const nNao=df.filter(d=>d.st_mon==='nao_iniciado').length;
+  const nAtual=df.filter(d=>d.st_mon==='atualizado').length;
+  const nAtraso=df.filter(d=>d.st_mon==='em_atraso').length;
+  const nPos=df.filter(d=>d.st_ev==='positiva').length;
+  const nEst=df.filter(d=>d.st_ev==='estavel').length;
+  const nNeg=df.filter(d=>d.st_ev==='negativa').length;
+  const nAtualTotal=nAtual;
+
+  const pct=(n)=>total?`${(n/total*100).toFixed(1)}% do total`:'–';
+  const pctAtual=(n)=>nAtualTotal?`${(n/nAtualTotal*100).toFixed(1)}% dos atualizados`:'–';
+
+  renderKpisVG('kpi-block-vg', df);
+
+  renderDonut('chart-status-mon','legend-status-mon',
+    ['Não Iniciado','Atualizado','Em Atraso'],
+    [nNao,nAtual,nAtraso],
+    ['#9e9e9e','#1e7e34','#d62728']);
+  renderDonut('chart-status-ev','legend-status-ev',
+    ['Evolução Positiva','Evolução Estável','Evolução Negativa'],
+    [nPos,nEst,nNeg],
+    ['#1e7e34','#0d6ebd','#d62728']);
+
+  const orgMap={};
+  df.forEach(d=>{if(!orgMap[d.oid])orgMap[d.oid]={n:0,nm:d.orgao};orgMap[d.oid].n++;});
+  const orgTop=Object.entries(orgMap).sort((a,b)=>b[1].n-a[1].n).slice(0,10);
+  renderBarH('chart-orgaos',orgTop.map(([,v])=>v.nm.split(' ').slice(0,3).join(' ')),orgTop.map(([,v])=>v.n),'#009B3A');
+
+  const perOrder=['MENSAL','BIMESTRAL','TRIMESTRAL','QUADRIMESTRAL','SEMESTRAL'];
+  const perColors={'MENSAL':'#1e7e34','BIMESTRAL':'#c2185b','TRIMESTRAL':'#7b2d8b','QUADRIMESTRAL':'#00695c','SEMESTRAL':'#e07b00'};
+  const perCnt={};
+  df.forEach(d=>perCnt[d.per]=(perCnt[d.per]||0)+1);
+  const perLabels=perOrder.filter(p=>perCnt[p]!=null);
+  renderBarV('chart-per',perLabels,perLabels.map(k=>perCnt[k]),perLabels.map(k=>perColors[k]||'#0d6ebd'));
+
+  // Alertas separados em dois grupos
+  // Grupo 1: Atualizado + Evolução Negativa (sem os em atraso — já aparecem no grupo 2)
+  const alertasAtNeg=df.filter(d=>d.st_mon==='atualizado'&&d.st_ev==='negativa');
+  // Grupo 2: Em Atraso (independente da evolução)
+  const alertasAtraso=df.filter(d=>d.st_mon==='em_atraso');
+
+  const mkAlertItem=(d,icon,bg,border)=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:5px;border-left:4px solid ${border};background:${bg};margin-bottom:5px;cursor:pointer" onclick="openDetalhe('${d.id}')">
+    <span style="font-size:16px;flex-shrink:0">${icon}</span>
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:10px;font-weight:700;color:#fff;background:#009B3A;border-radius:4px;padding:1px 6px;flex-shrink:0">${d.id}</span>
+        <span style="font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.nome.substring(0,52)}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">${d.orgao.substring(0,45)}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;gap:3px">
+      ${tagMon(d.st_mon)}
+      ${d.st_ev?tagEv(d.st_ev):''}
+    </div>
+  </div>`;
+
+  document.getElementById('alert-count-atneg-lbl').textContent=`${alertasAtNeg.length} ocorrências`;
+  document.getElementById('alert-list-atneg').innerHTML=alertasAtNeg.slice(0,20).length?
+    alertasAtNeg.slice(0,20).map(d=>mkAlertItem(d,'📉','#fffdf0','#d4a900')).join('')
+    :'<div style="color:var(--muted);font-size:13px;padding:12px">✅ Nenhuma ocorrência no momento</div>';
+
+  document.getElementById('alert-count-atraso-lbl').textContent=`${alertasAtraso.length} ocorrências`;
+  document.getElementById('alert-list-atraso').innerHTML=alertasAtraso.slice(0,20).length?
+    alertasAtraso.slice(0,20).map(d=>mkAlertItem(d,'🔴','#fff5f5','#d62728')).join('')
+    :'<div style="color:var(--muted);font-size:13px;padding:12px">✅ Nenhuma ocorrência no momento</div>';
+}
+
+// ── INDICADORES ──
+function renderIndicadores(){
+  const df=dadosFiltrados();
+  const total=df.length;
+  const nNao=df.filter(d=>d.st_mon==='nao_iniciado').length;
+  const nAtual=df.filter(d=>d.st_mon==='atualizado').length;
+  const nAtraso=df.filter(d=>d.st_mon==='em_atraso').length;
+  const nPos=df.filter(d=>d.st_ev==='positiva').length;
+  const nNeg=df.filter(d=>d.st_ev==='negativa').length;
+  const pct=(n)=>total?`${(n/total*100).toFixed(1)}%`:'–';
+
+  renderKpisVG('kpi-block-ind', df);
+
+  const totalPag=Math.ceil(total/POR_PAGINA);
+  paginaAtual=Math.min(paginaAtual,totalPag||1);
+  const slice=df.slice((paginaAtual-1)*POR_PAGINA,paginaAtual*POR_PAGINA);
+  document.getElementById('ind-count-lbl').textContent=`${total} registros`;
+  const tbody=document.getElementById('ind-tbody');
+  tbody.innerHTML=slice.map(d=>`
+    <tr onclick="openDetalhe('${d.id}')">
+      <td style="text-align:center;font-weight:700;color:#009B3A">${d.id}</td>
+      <td style="text-align:center;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.nome}">${d.nome}</td>
+      <td style="text-align:center;font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.orgao}">${d.orgao}</td>
+      <td style="text-align:center">${tagPer(d.per)}</td>
+      <td style="text-align:center;font-weight:700">${fmtNum(d.ult_val,d.un)}</td>
+      <td style="text-align:center;font-size:11px;color:var(--muted)">${d.un||'–'}</td>
+      <td style="text-align:center;font-size:11px;color:var(--muted)">${d.ult_per||'–'}</td>
+      <td style="text-align:center">${tagMon(d.st_mon)}</td>
+      <td style="text-align:center">${tagEv(d.st_ev)}</td>
+    </tr>`).join('');
+
+  document.getElementById('pag-info').textContent=`Mostrando ${(paginaAtual-1)*POR_PAGINA+1}–${Math.min(paginaAtual*POR_PAGINA,total)} de ${total}`;
+  const btns=document.getElementById('pag-btns');
+  btns.innerHTML='';
+  const prev=document.createElement('button');
+  prev.className='pag-btn';prev.textContent='← Anterior';prev.disabled=paginaAtual<=1;
+  prev.onclick=()=>{paginaAtual--;renderIndicadores()};
+  btns.appendChild(prev);
+  for(let p=Math.max(1,paginaAtual-2);p<=Math.min(totalPag,paginaAtual+2);p++){
+    const b=document.createElement('button');
+    b.className='pag-btn'+(p===paginaAtual?' active':'');
+    b.textContent=p;b.onclick=(pp=>()=>{paginaAtual=pp;renderIndicadores()})(p);
+    btns.appendChild(b);
+  }
+  const next=document.createElement('button');
+  next.className='pag-btn';next.textContent='Próximo →';next.disabled=paginaAtual>=totalPag;
+  next.onclick=()=>{paginaAtual++;renderIndicadores()};
+  btns.appendChild(next);
+}
+
+// ── ÓRGÃOS ──
+function buildOrgaos(){
+  const df=dadosFiltrados();
+  renderKpisVG('kpi-block-org', df);
+  const orgMap={};
+  df.forEach(d=>{
+    if(!orgMap[d.oid])orgMap[d.oid]={nome:d.orgao,inds:[],nao:0,atualizado:0,em_atraso:0,positiva:0,estavel:0,negativa:0};
+    orgMap[d.oid].inds.push(d);
+    orgMap[d.oid][d.st_mon]=(orgMap[d.oid][d.st_mon]||0)+1;
+    if(d.st_ev)orgMap[d.oid][d.st_ev]=(orgMap[d.oid][d.st_ev]||0)+1;
+  });
+  const grid=document.getElementById('orgaos-grid');
+  if(!Object.keys(orgMap).length){
+    grid.innerHTML='<div class="panel" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;font-size:14px">Nenhum órgão encontrado.</div>';
+    return;
+  }
+  grid.innerHTML=Object.entries(orgMap).sort((a,b)=>b[1].inds.length-a[1].inds.length).map(([oid,o])=>`
+    <div class="panel" style="cursor:pointer;transition:box-shadow .15s,transform .15s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,155,58,.15)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='';this.style.transform=''" onclick="openOrgaoDrawer('${oid}')">
+      <div class="panel-title">${o.nome.substring(0,50)} <span>${o.inds.length} indicadores</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        ${o.nao?`<span class="tag nao-iniciado">⬜ ${o.nao} Não Iniciado</span>`:''}
+        ${o.atualizado?`<span class="tag atualizado">✅ ${o.atualizado} Atualizado</span>`:''}
+        ${o.em_atraso?`<span class="tag em-atraso">🔴 ${o.em_atraso} Atraso</span>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${o.positiva?`<span class="tag ev-positiva">📈 ${o.positiva}</span>`:''}
+        ${o.estavel?`<span class="tag ev-estavel">➡️ ${o.estavel}</span>`:''}
+        ${o.negativa?`<span class="tag ev-negativa">📉 ${o.negativa}</span>`:''}
+      </div>
+      <div class="bar-list" style="margin-top:10px">${
+        o.inds.slice(0,3).map(d=>`
+          <div class="bl-row">
+            <div class="bl-lbl" title="${d.id} - ${d.nome}"><span style="font-weight:700;color:#009B3A;margin-right:4px">${d.id}</span>${d.nome.substring(0,28)}</div>
+            <div class="bl-track"><div class="bl-fill" style="width:${d.ult_val&&d.metas[0]?Math.min(100,d.ult_val/parseFloat(d.metas[0].valor||1)*100):40}%;background:${d.st_mon==='atualizado'?'#1e7e34':d.st_mon==='em_atraso'?'#d62728':'#9e9e9e'}"></div></div>
+            <div class="bl-val">${fmtNum(d.ult_val,d.un)}</div>
+          </div>`).join('')
+      }</div>
+      ${o.inds.length>3?`<div style="font-size:11px;color:#009B3A;margin-top:8px;text-align:right;font-weight:600">Ver todos ${o.inds.length} →</div>`:''}
+    </div>`).join('');
+}
+
+// ── DETALHE ──
+function openDetalhe(id){
+  const d=DADOS.find(x=>x.id===id);
+  if(!d)return;
+  indicadorAtual=d;
+  const currentPage=document.querySelector('.page.active')?.id.replace('page-','');
+  if(currentPage&&currentPage!=='detalhe')prevPage=currentPage;
+
+  document.getElementById('det-left').innerHTML=`
+    <div class="det-header">
+      <div class="det-id" style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:800;color:#fff;background:rgba(255,255,255,.25);border-radius:5px;padding:2px 10px;letter-spacing:1px">#${d.id}</span>
+        <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.65)">Indicador</span>
+      </div>
+      <div class="det-nome">${d.nome}</div>
+      <div class="det-org">🏛️ ${d.orgao}</div>
+      <div class="det-tags">
+        ${tagPer(d.per)}
+        <span class="det-tag">${d.un}</span>
+        ${tagPol(d.pol)}
+        ${tagMon(d.st_mon)}
+        ${d.st_ev?tagEv(d.st_ev):''}
+      </div>
+    </div>
+    <div class="det-info-row">
+      <div class="det-info"><label>Linha Base</label><div class="val">${fmtNum(d.lb,d.un)}</div></div>
+      <div class="det-info"><label>Último Valor</label><div class="val" style="color:${d.st_mon==='atualizado'?'var(--green)':d.st_mon==='em_atraso'?'var(--red)':'#9e9e9e'}">${fmtNum(d.ult_val,d.un)}</div><div class="sub">${d.ult_per||'–'}</div></div>
+    </div>
+    <div class="det-info-row">
+      ${d.metas.map(m=>`<div class="det-info"><label>Meta ${m.ref_temporal}</label><div class="val">${fmtNum(m.valor,d.un)}</div></div>`).join('')}
+    </div>
+    <div class="panel">
+      <div class="panel-title">Status</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><strong style="min-width:140px;color:var(--muted)">Monitoramento:</strong>${tagMon(d.st_mon)}</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><strong style="min-width:140px;color:var(--muted)">Evolução:</strong>${tagEv(d.st_ev)}</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><strong style="min-width:140px;color:var(--muted)">Polaridade:</strong>${tagPol(d.pol)}</div>
+      </div>
+    </div>
+    <div class="panel"><div class="panel-title">Programa</div><div style="font-size:12px;color:var(--text)">${d.prog}</div></div>
+    <div class="det-formula"><label>Fórmula</label><code>${d.form}</code></div>
+    <div class="panel">
+      <div class="panel-title">Informações</div>
+      <div style="font-size:11.5px;line-height:1.7;color:var(--muted)">
+        <div><strong style="color:var(--text)">Responsável:</strong> ${d.resp}</div>
+        <div><strong style="color:var(--text)">Fonte:</strong> ${d.fonte}</div>
+        <div><strong style="color:var(--text)">Situação:</strong> ${d.sit}</div>
+      </div>
+    </div>
+    <div class="panel"><div class="panel-title">Descrição</div><div style="font-size:11.5px;line-height:1.7;color:var(--muted)">${d.desc}</div></div>
+  `;
+
+  const monVals=d.mon.map(m=>m.valor);
+  const monPers=d.mon.map(m=>m.periodo);
+  const meta0=d.metas[0]?parseFloat(d.metas[0].valor):null;
+  const monColors=d.mon.map(m=>m.st_mon==='atualizado'?'#1e7e34cc':m.st_mon==='em_atraso'?'#d62728cc':'#9e9e9ecc');
+
+  document.getElementById('det-right').innerHTML=`
+    <div class="panel">
+      <div class="panel-title">Evolução Temporal <span>${d.per}</span></div>
+      <canvas id="chart-evolucao" height="160"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Histórico de Monitoramento</div>
+      <div>
+        <div class="mon-row header">
+          <div>Período</div><div>Valor</div><div>Status Monitoramento</div><div>Status Evolução</div><div>Observação</div><div>Ação</div>
+        </div>
+        ${d.mon.map((m,i)=>`
+          <div class="mon-row" id="mon-row-${i}">
+            <div class="mon-periodo">${m.periodo}</div>
+            <div class="mon-val" style="color:${m.st_mon==='atualizado'?'var(--green)':m.st_mon==='em_atraso'?'var(--red)':'#9e9e9e'}">${fmtNum(m.valor,d.un)}</div>
+            <div>${tagMon(m.st_mon)}</div>
+            <div>${tagEv(m.st_ev)}</div>
+            <div class="mon-obs" id="obs-${i}">${m.observacao||'–'}</div>
+            <div><button class="mon-edit" onclick="openModal(${i})">✏️ Editar</button></div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  setTimeout(()=>{
+    const ctx=document.getElementById('chart-evolucao');
+    if(!ctx)return;
+    if(charts['det-evolucao'])charts['det-evolucao'].destroy();
+    const ds=[{
+      label:d.un,data:monVals,borderColor:'#009B3A',backgroundColor:'rgba(0,155,58,.1)',
+      fill:true,tension:.3,pointBackgroundColor:monColors,pointRadius:5,pointHoverRadius:7
+    }];
+    if(meta0)ds.push({label:'Meta',data:d.mon.map(()=>meta0),borderColor:'#d4a900',borderDash:[6,4],borderWidth:1.5,pointRadius:0,fill:false});
+    charts['det-evolucao']=new Chart(ctx,{type:'line',data:{labels:monPers,datasets:ds},
+      options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10}}}}}});
+  },50);
+
+  showPage('detalhe',null);
+}
+
+// ── MODAL ──
+function openModal(idx){
+  const d=indicadorAtual;
+  const m=d.mon[idx];
+  editCtx={idx,d};
+  document.getElementById('modal-ind-nome').textContent=d.nome;
+  document.getElementById('m-codigo').textContent=d.id;
+  document.getElementById('m-nome').textContent=d.nome;
+  document.getElementById('m-orgao').textContent=d.oid+' - '+d.orgao;
+  document.getElementById('m-per').textContent=d.per;
+  document.getElementById('m-un').textContent=d.un;
+  document.getElementById('m-lb').textContent=fmtNum(d.lb,d.un);
+  const meta26=d.metas.find(x=>x.ref_temporal.includes('2026'));
+  document.getElementById('m-meta26').textContent=meta26?fmtNum(meta26.valor,d.un):'–';
+  document.getElementById('m-pol').textContent='QUANTO MAIOR, MELHOR ↑';
+  const monLabels={nao_iniciado:'Não Iniciado',atualizado:'Atualizado',em_atraso:'Em Atraso'};
+  const evLabels={positiva:'Evolução Positiva',estavel:'Evolução Estável',negativa:'Evolução Negativa'};
+  document.getElementById('m-st-mon').textContent=monLabels[d.st_mon]||'–';
+  document.getElementById('m-st-ev').textContent=d.st_ev?evLabels[d.st_ev]:'–';
+  document.getElementById('edit-periodo').value=m.periodo;
+  document.getElementById('edit-valor').value=m.valor!==null?m.valor:'';
+  document.getElementById('edit-obs').value=m.observacao||'';
+  updateCharCount(document.getElementById('edit-obs'));
+  renderModalHistTable(d,idx);
+  document.getElementById('overlay').classList.add('open');
+}
+function renderModalHistTable(d,currentIdx){
+  const launched=d.mon.filter((m,i)=>i!==currentIdx&&m.valor!==null);
+  const el=document.getElementById('mon-hist-table');
+  if(!launched.length){
+    el.innerHTML='<table><thead><tr><th>PERÍODO</th><th>VALOR</th><th>STATUS MONITORAMENTO</th><th>STATUS EVOLUÇÃO</th><th>OBSERVAÇÃO</th></tr></thead><tbody><tr><td colspan="5" class="empty">Nenhum registro anterior</td></tr></tbody></table>';
+    return;
+  }
+  el.innerHTML=`<table>
+    <thead><tr><th>PERÍODO</th><th>VALOR</th><th>STATUS MONITORAMENTO</th><th>STATUS EVOLUÇÃO</th><th>OBSERVAÇÃO</th></tr></thead>
+    <tbody>${launched.map(m=>`<tr>
+      <td><strong>${m.periodo}</strong></td>
+      <td style="font-weight:700">${fmtNum(m.valor,d.un)}</td>
+      <td>${tagMon(m.st_mon)}</td>
+      <td>${tagEv(m.st_ev)}</td>
+      <td style="font-size:11px;color:var(--muted);max-width:200px">${m.observacao||'–'}</td>
+    </tr>`).join('')}
+    </tbody></table>`;
+}
+function updateCharCount(el){
+  const rem=2000-el.value.length;
+  const cc=document.getElementById('char-count');
+  if(cc)cc.textContent=rem+' caracteres restantes';
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open')}
+function saveModal(){
+  const {idx,d}=editCtx;
+  const novoVal=parseFloat(document.getElementById('edit-valor').value);
+  const novaObs=document.getElementById('edit-obs').value;
+  if(isNaN(novoVal)){alert('Por favor, insira um valor numérico válido.');return;}
+  d.mon[idx].valor=novoVal;
+  d.mon[idx].observacao=novaObs;
+  d.mon[idx].st_mon='atualizado';
+  // Calcular evolução comparando com período anterior
+  const prevVal=idx>0?d.mon[idx-1].valor:d.lb;
+  let evSt='estavel';
+  if(prevVal!==null&&!isNaN(prevVal)){
+    const diff=novoVal-prevVal;
+    const pct=Math.abs(diff/prevVal);
+    if(pct>0.03)evSt=diff>0?'positiva':'negativa';
+  }
+  d.mon[idx].st_ev=evSt;
+  if(idx===d.mon.length-1){d.ult_val=novoVal;d.st_mon='atualizado';d.st_ev=evSt;d.ult_per=d.mon[idx].periodo;}
+  const row=document.getElementById('mon-row-'+idx);
+  if(row){
+    row.querySelector('.mon-val').textContent=fmtNum(novoVal,d.un);
+    row.querySelector('.mon-val').style.color='var(--green)';
+  }
+  closeModal();
+  setTimeout(()=>openDetalhe(d.id),100);
+}
+
+// ── METAS ──
+function parseMeta(v){if(v===null||v===undefined||v==='')return NaN;const s=String(v).trim();if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s))return parseFloat(s.replace(/\./g,'').replace(',','.'));if(s.includes(','))return parseFloat(s.replace(',','.'));return parseFloat(s);}
+function buildMetas(){
+  const df=dadosFiltrados();
+  renderKpisVG('kpi-block-met', df);
+  const total=df.length;
+  const comMeta=df.filter(d=>d.metas&&d.metas.length>0);
+  const semMeta=df.filter(d=>!d.metas||d.metas.length===0);
+  const acima=[],abaixo=[];
+  comMeta.forEach(d=>{
+    const m26=d.metas.find(m=>m.ref_temporal&&m.ref_temporal.includes('2026'));
+    if(!m26||d.ult_val===null)return;
+    const metaVal=parseMeta(m26.valor);
+    if(isNaN(metaVal))return;
+    const pct=metaVal!==0?(d.ult_val/metaVal*100):null;
+    if(pct===null)return;
+    const obj={...d,metaVal,pct};
+    if(pct>=100)acima.push(obj);else abaixo.push(obj);
+  });
+  document.getElementById('metas-kpis').innerHTML=`
+    <div class="kpi blue"><div class="kpi-icon">🎯</div><div class="kpi-lbl">Com Meta 2026</div><div class="kpi-val blue">${comMeta.length}</div><div class="kpi-sub">${Math.round(comMeta.length/total*100)}% dos indicadores</div></div>
+    <div class="kpi yellow"><div class="kpi-icon">📋</div><div class="kpi-lbl">Sem Meta Definida</div><div class="kpi-val">${semMeta.length}</div><div class="kpi-sub">${Math.round(semMeta.length/total*100)}% dos indicadores</div></div>
+    <div class="kpi green"><div class="kpi-icon">✅</div><div class="kpi-lbl">Acima / Na Meta</div><div class="kpi-val green">${acima.length}</div><div class="kpi-sub">${comMeta.length?Math.round(acima.length/comMeta.length*100):0}% dos c/ meta</div></div>
+    <div class="kpi red"><div class="kpi-icon">📉</div><div class="kpi-lbl">Abaixo da Meta</div><div class="kpi-val red">${abaixo.length}</div><div class="kpi-sub">${comMeta.length?Math.round(abaixo.length/comMeta.length*100):0}% dos c/ meta</div></div>`;
+
+  const mkItem=(d,cor)=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border-radius:5px;border-left:4px solid ${cor};background:${cor==='#1e7e34'?'#f0faf2':'#fff5f5'};margin-bottom:5px;cursor:pointer" onclick="openDetalhe('${d.id}')">
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+        <span style="font-size:10px;font-weight:700;color:#fff;background:#009B3A;border-radius:4px;padding:1px 6px;flex-shrink:0">${d.id}</span>
+        <span style="font-weight:600;font-size:12px">${d.nome.substring(0,50)}</span>
+      </div>
+      <div style="font-size:10.5px;color:var(--muted)">${d.orgao.substring(0,45)}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-weight:700;font-size:13px;color:${cor}">${d.pct.toFixed(0)}%</div>
+      <div style="font-size:10px;color:var(--muted)">da meta</div>
+    </div>
+  </div>`;
+  document.getElementById('metas-acima-lbl').textContent=acima.length+' indicadores';
+  document.getElementById('metas-acima-list').innerHTML=acima.map(d=>mkItem(d,'#1e7e34')).join('')||'<div style="color:var(--muted);padding:12px">Nenhum</div>';
+  document.getElementById('metas-abaixo-lbl').textContent=abaixo.length+' indicadores';
+  document.getElementById('metas-abaixo-list').innerHTML=abaixo.sort((a,b)=>a.pct-b.pct).map(d=>mkItem(d,'#d62728')).join('')||'<div style="color:var(--muted);padding:12px">Nenhum</div>';
+
+  const top15=comMeta.filter(d=>{const m=d.metas.find(m=>m.ref_temporal&&m.ref_temporal.includes('2026'));if(!m)return false;const mv=parseMeta(m.valor);return !isNaN(mv)&&mv!==0;}).map(d=>{
+    const m=d.metas.find(m=>m.ref_temporal&&m.ref_temporal.includes('2026'));const mv=parseMeta(m.valor);return{id:d.id,nome:d.nome.substring(0,35),pct:Math.min(150,d.ult_val/mv*100)};
+  }).sort((a,b)=>b.pct-a.pct).slice(0,15);
+  renderBarHClickable('chart-metas-prog',top15.map(d=>d.nome),top15.map(d=>parseFloat(d.pct.toFixed(1))),top15.map(d=>d.pct>=100?'#1e7e34':'#d62728'),'% da meta',top15.map(d=>d.id));
+  const piores15=comMeta.filter(d=>{const m=d.metas.find(m=>m.ref_temporal&&m.ref_temporal.includes('2026'));if(!m)return false;const mv=parseMeta(m.valor);return !isNaN(mv)&&mv!==0&&d.ult_val!=null;}).map(d=>{
+    const m=d.metas.find(m=>m.ref_temporal&&m.ref_temporal.includes('2026'));const mv=parseMeta(m.valor);return{id:d.id,nome:d.nome.substring(0,35),pct:Math.max(0,d.ult_val/mv*100)};
+  }).sort((a,b)=>a.pct-b.pct).slice(0,15);
+  renderBarHClickable('chart-metas-piores',piores15.map(d=>d.nome),piores15.map(d=>parseFloat(d.pct.toFixed(1))),piores15.map(d=>d.pct>=100?'#1e7e34':d.pct>=80?'#d4a900':'#d62728'),'% da meta',piores15.map(d=>d.id));
+}
+
+// ── ALERTAS ──
+function buildAlertas(){
+  const df=dadosFiltrados();
+  renderKpisVG('kpi-block-aler', df);
+  const emAtraso=df.filter(d=>d.st_mon==='em_atraso');
+  const evNeg=df.filter(d=>d.st_ev==='negativa');
+  const criticos=[...new Map([...emAtraso,...evNeg].map(d=>[d.id,d])).values()];
+
+  document.getElementById('alertas-kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-icon">🔴</div><div class="kpi-lbl">Em Atraso</div><div class="kpi-val red">${emAtraso.length}</div><div class="kpi-sub">${Math.round(emAtraso.length/df.length*100)}% do total</div></div>
+    <div class="kpi red"><div class="kpi-icon">📉</div><div class="kpi-lbl">Evolução Negativa</div><div class="kpi-val red">${evNeg.length}</div><div class="kpi-sub">${Math.round(evNeg.length/df.length*100)}% do total</div></div>
+    <div class="kpi orange"><div class="kpi-icon">🏛️</div><div class="kpi-lbl">Órgãos Afetados</div><div class="kpi-val orange">${new Set(criticos.map(d=>d.oid)).size}</div><div class="kpi-sub">com indicadores críticos</div></div>
+    <div class="kpi"><div class="kpi-icon">⬜</div><div class="kpi-lbl">Não Iniciado</div><div class="kpi-val grey">${df.filter(d=>d.st_mon==='nao_iniciado').length}</div><div class="kpi-sub">sem nenhum registro</div></div>`;
+
+  const orgAlerta={};
+  emAtraso.forEach(d=>{if(!orgAlerta[d.orgao])orgAlerta[d.orgao]={atraso:0,negativa:0};orgAlerta[d.orgao].atraso++;});
+  evNeg.forEach(d=>{if(!orgAlerta[d.orgao])orgAlerta[d.orgao]={atraso:0,negativa:0};orgAlerta[d.orgao].negativa++;});
+  const orgTop=Object.entries(orgAlerta).map(([nm,v])=>({nm,tot:v.atraso+v.negativa,v})).sort((a,b)=>b.tot-a.tot).slice(0,20);
+  document.getElementById('alerta-org-lbl').textContent=orgTop.length+' órgãos';
+  const maxTot=Math.max(...orgTop.map(d=>d.tot),1);
+  const htmlChart=document.getElementById('chart-alerta-orgaos-html');
+  if(htmlChart){
+    htmlChart.innerHTML=orgTop.map(({nm,tot,v})=>{
+      const pctAl=v.atraso/maxTot*100;
+      const pctNeg=v.negativa/maxTot*100;
+      const words=nm.split(' ');const label=words.length>4?words.slice(0,4).join(' ')+'…':nm;
+      return `<div class="abar-row" title="${nm}: ${v.atraso} em atraso, ${v.negativa} evolução negativa">
+        <div class="abar-label">${label}</div>
+        <div class="abar-track">
+          ${v.atraso>0?`<div class="abar-seg-al" style="width:${pctAl.toFixed(2)}%"></div>`:''}
+          ${v.negativa>0?`<div class="abar-seg-neg" style="width:${pctNeg.toFixed(2)}%"></div>`:''}
+        </div>
+        <div class="abar-total">${tot}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const perCnt={};
+  emAtraso.forEach(d=>perCnt[d.per]=(perCnt[d.per]||0)+1);
+  renderDonut('chart-alerta-per',null,Object.keys(perCnt),Object.values(perCnt),['#d62728','#e07b00','#d4a900','#7b2d8b','#0d6ebd']);
+
+  document.getElementById('alertas-todos-lbl').textContent=criticos.length+' ocorrências';
+  document.getElementById('alertas-full-list').innerHTML=criticos.length?
+    criticos.map(d=>{
+      const isAtraso=d.st_mon==='em_atraso';
+      const border=isAtraso?'#d62728':'#d4a900';
+      const bg=isAtraso?'#fff5f5':'#fffdf0';
+      return `<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:5px;border-left:4px solid ${border};background:${bg};margin-bottom:5px;cursor:pointer" onclick="openDetalhe('${d.id}')">
+        <span style="font-size:16px;flex-shrink:0">${isAtraso?'🔴':'📉'}</span>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+            <span style="font-size:10px;font-weight:700;color:#fff;background:#009B3A;border-radius:4px;padding:1px 6px;flex-shrink:0">${d.id}</span>
+            <span style="font-weight:600;font-size:12px">${d.nome.substring(0,65)}</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted)">${d.orgao.substring(0,55)} · ${d.per}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;gap:3px;align-items:flex-end">
+          ${tagMon(d.st_mon)}
+          ${d.st_ev?tagEv(d.st_ev):''}
+        </div>
+      </div>`;
+    }).join('')
+    :'<div style="color:var(--muted);font-size:13px;padding:12px">✅ Nenhuma ocorrência</div>';
+}
+
+// ── TOGGLE STATUS CHART ──
+let _statusView='mon'; // 'mon' | 'ev'
+function toggleStatusChart(){
+  const wMon=document.getElementById('wrap-chart-mon');
+  const wEv=document.getElementById('wrap-chart-ev');
+  const title=document.getElementById('status-toggle-title');
+  const btnIcon=document.getElementById('btn-toggle-icon');
+  const btnLbl=document.getElementById('btn-toggle-label');
+  const panel=document.getElementById('panel-status-toggle');
+
+  if(_statusView==='mon'){
+    _statusView='ev';
+    wMon.style.display='none';
+    wEv.style.display='flex';
+    title.textContent='Status de Evolução';
+    btnIcon.textContent='📌';
+    btnLbl.textContent='Ver Monitoramento';
+    panel.style.borderLeftColor='#0d6ebd';
+    document.getElementById('btn-toggle-status').style.background='#e3f2fd';
+    document.getElementById('btn-toggle-status').style.borderColor='#90caf9';
+    document.getElementById('btn-toggle-status').style.color='#0d6ebd';
+    document.getElementById('btn-toggle-status').setAttribute('onmouseover',"this.style.background='#bbdefb'");
+    document.getElementById('btn-toggle-status').setAttribute('onmouseout',"this.style.background='#e3f2fd'");
+  } else {
+    _statusView='mon';
+    wMon.style.display='flex';
+    wMon.style.flexDirection='row';
+    wMon.style.minHeight='0';
+    wEv.style.display='none';
+    title.textContent='Status de Monitoramento';
+    btnIcon.textContent='📈';
+    btnLbl.textContent='Ver Evolução';
+    panel.style.borderLeftColor='#1e7e34';
+    document.getElementById('btn-toggle-status').style.background='#f0faf2';
+    document.getElementById('btn-toggle-status').style.borderColor='#a5d6a7';
+    document.getElementById('btn-toggle-status').style.color='#1e7e34';
+    document.getElementById('btn-toggle-status').setAttribute('onmouseover',"this.style.background='#c3e6cb'");
+    document.getElementById('btn-toggle-status').setAttribute('onmouseout',"this.style.background='#f0faf2'");
+  }
+}
+
+// ── LIMPAR FILTROS ──
+function clearFiltroVG(){
+  ['f-vg-orgao','f-vg-per','f-vg-mon','f-vg-ev'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  applyPageFilter('vg');
+}
+function clearFiltroInd(){
+  ['f-ind-orgao','f-ind-per','f-ind-mon','f-ind-ev'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  applyPageFilter('ind');
+}
+function clearFiltroOrg(){
+  ['f-org-orgao','f-org-mon','f-org-ev'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  applyPageFilter('org');
+}
+function clearFiltroMet(){
+  ['f-met-orgao'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  applyPageFilter('met');
+}
+function clearFiltroAler(){
+  ['f-aler-orgao'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  applyPageFilter('aler');
+}
+
+// ── FILTROS ──
+const pageFilterMap={
+  'vg':()=>buildVisaoGeral(),
+  'ind':()=>{paginaAtual=1;renderIndicadores();},
+  'org':()=>buildOrgaos(),
+  'met':()=>buildMetas(),
+  'aler':()=>buildAlertas()
+};
+function applyPageFilter(p){
+  filtros.orgao=(document.getElementById(`f-${p}-orgao`)||{value:''}).value;
+  filtros.per=(document.getElementById(`f-${p}-per`)||{value:''}).value;
+  filtros.mon=(document.getElementById(`f-${p}-mon`)||{value:''}).value;
+  filtros.ev=(document.getElementById(`f-${p}-ev`)||{value:''}).value;
+  if(p==='vg'){filtros.mon=(document.getElementById('f-vg-mon')||{value:''}).value;filtros.ev=(document.getElementById('f-vg-ev')||{value:''}).value;}
+  if(p==='org'){filtros.mon=(document.getElementById('f-org-mon')||{value:''}).value;filtros.ev=(document.getElementById('f-org-ev')||{value:''}).value;}
+  if(pageFilterMap[p])pageFilterMap[p]();
+}
+
+// ── ÓRGÃO DRAWER ──
+function openOrgaoDrawer(oid){
+  const inds=DADOS.filter(d=>d.oid===oid);
+  if(!inds.length)return;
+  const nome=inds[0].orgao;
+  const nNao=inds.filter(d=>d.st_mon==='nao_iniciado').length;
+  const nAtual=inds.filter(d=>d.st_mon==='atualizado').length;
+  const nAtraso=inds.filter(d=>d.st_mon==='em_atraso').length;
+  const nPos=inds.filter(d=>d.st_ev==='positiva').length;
+  document.getElementById('od-title').textContent=nome;
+  document.getElementById('od-kpis').innerHTML=`
+    <div class="od-kpi k-tot"><div class="k-num">${inds.length}</div><div class="k-lbl">Total</div></div>
+    <div class="od-kpi k-nao"><div class="k-num">${nNao}</div><div class="k-lbl">Não Iniciado</div></div>
+    <div class="od-kpi k-atual"><div class="k-num">${nAtual}</div><div class="k-lbl">Atualizado</div></div>
+    <div class="od-kpi k-atraso"><div class="k-num">${nAtraso}</div><div class="k-lbl">Em Atraso</div></div>
+    <div class="od-kpi k-evpos"><div class="k-num">${nPos}</div><div class="k-lbl">Ev. Positiva</div></div>`;
+  document.getElementById('od-tbody').innerHTML=inds.map(d=>`
+    <tr onclick="closeOrgaoDrawer();openDetalhe('${d.id}')">
+      <td class="ind-cod">${d.id}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500" title="${d.nome}">${d.nome}</td>
+      <td>${tagPer(d.per)}</td>
+      <td class="ind-val">${fmtNum(d.ult_val,d.un)}</td>
+      <td>${tagMon(d.st_mon)}</td>
+      <td>${tagEv(d.st_ev)}</td>
+    </tr>`).join('');
+  document.getElementById('orgao-drawer-overlay').classList.add('open');
+}
+function closeOrgaoDrawer(){document.getElementById('orgao-drawer-overlay').classList.remove('open');}
+
+// ── EXPORT ──
+function exportCSV(){
+  const df=dadosFiltrados();
+  const header=['Código','Nome','Órgão','Periodicidade','Unidade','Último Valor','Período','Status Monitoramento','Status Evolução'];
+  const rows=df.map(d=>[d.id,d.nome,d.orgao,d.per,d.un,d.ult_val??'',d.ult_per??'',d.st_mon,d.st_ev??'']);
+  const csv=[header,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='indicadores.csv';a.click();
+}
+function exportXLSX(){
+  const df=dadosFiltrados();
+  const ws_data=[['Código','Nome','Órgão','Periodicidade','Unidade','Último Valor','Período','Status Monitoramento','Status Evolução'],
+    ...df.map(d=>[d.id,d.nome,d.orgao,d.per,d.un,d.ult_val??'',d.ult_per??'',d.st_mon,d.st_ev??''])];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(ws_data),'Indicadores');
+  XLSX.writeFile(wb,'indicadores.xlsx');
+}
+</script>
+</body>
+</html>
